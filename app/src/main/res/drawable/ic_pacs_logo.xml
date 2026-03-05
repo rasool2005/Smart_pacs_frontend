@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Outer Head Outline -->
+    <path
+        android:fillColor="#BD68EE"
+        android:pathData="M30,35C30,15 45,5 60,5C75,5 85,20 85,40C85,60 70,85 55,90C45,90 35,85 30,75L30,65C25,65 20,55 20,45C20,35 25,35 30,35Z" />
+
+    <!-- Brain/Connection Dots -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M55,15m-4,0a4,4 0,1 1,8 0a4,4 0,1 1,-8 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,25m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,40m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,45m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50,55m-4,0a4,4 0,1 1,8 0a4,4 0,1 1,-8 0" />
+
+    <!-- Connection Lines -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M55,15 L70,25 M70,25 L60,40 M60,40 L75,45 M60,40 L50,55" />
+
+</vector>

@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#0D47A1"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="48dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginBottom="24dp"
+                android:src="@drawable/ic_chevron_left"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="Help &amp; Support"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Find answers and get assistance"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp">
+
+            <!-- Search Bar -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="-28dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="#999999"/>
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="Search help articles..."
+                        android:textColorHint="#999999"
+                        android:textSize="14sp"
+                        android:textColor="#1A1C1E"
+                        android:layout_marginStart="12dp"
+                        android:inputType="text"
+                        android:imeOptions="actionSearch"
+                        android:maxLines="1"
+                        android:singleLine="true"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Quick Actions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLiveChat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EEEEEE"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <ImageView
+                             android:layout_width="40dp"
+                             android:layout_height="40dp"
+                             android:src="@drawable/ic_chat"
+                             app:tint="@color/brand_blue"
+                             android:background="#F0F4FF"
+                             android:padding="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Live Chat"
+                            android:textSize="12sp"
+                            android:textColor="#1A1C1E"
+                            android:layout_marginTop="8dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardEmailUs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EEEEEE"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <ImageView
+                             android:layout_width="40dp"
+                             android:layout_height="40dp"
+                             android:src="@drawable/ic_email"
+                             app:tint="@color/brand_blue"
+                             android:background="#F0F4FF"
+                             android:padding="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Email Us"
+                            android:textSize="12sp"
+                            android:textColor="#1A1C1E"
+                            android:layout_marginTop="8dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCallSupport"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EEEEEE"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <ImageView
+                             android:layout_width="40dp"
+                             android:layout_height="40dp"
+                             android:src="@drawable/ic_phone"
+                             app:tint="@color/brand_blue"
+                             android:background="#F0F4FF"
+                             android:padding="10dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Call Support"
+                            android:textSize="12sp"
+                            android:textColor="#1A1C1E"
+                            android:layout_marginTop="8dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- FAQs -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Frequently Asked Questions"
+                android:textColor="#1A1C1E"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="1dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- FAQ Item 1 -->
+                    <LinearLayout
+                        android:id="@+id/faqItem1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="How do I interpret AI confidence scores?"
+                                android:textColor="#1A1C1E"
+                                android:textSize="14sp"/>
+                            <ImageView
+                                android:id="@+id/faqChevron1"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="#999999"/>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/faqAnswer1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="The AI confidence score indicates the model's certainty in its prediction. High scores (>90%) suggest strong evidence, while lower scores require careful human review."
+                            android:textColor="#666666"
+                            android:textSize="13sp"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5"/>
+
+                    <!-- FAQ Item 2 -->
+                    <LinearLayout
+                        android:id="@+id/faqItem2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Can I customize AI sensitivity settings?"
+                                android:textColor="#1A1C1E"
+                                android:textSize="14sp"/>
+                            <ImageView
+                                android:id="@+id/faqChevron2"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="#999999"/>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/faqAnswer2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Yes, administrators can adjust the sensitivity thresholds in the Settings menu under 'AI Configuration' to balance between sensitivity and specificity."
+                            android:textColor="#666666"
+                            android:textSize="13sp"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5"/>
+
+                    <!-- FAQ Item 3 -->
+                    <LinearLayout
+                        android:id="@+id/faqItem3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="How do I share a case with colleagues?"
+                                android:textColor="#1A1C1E"
+                                android:textSize="14sp"/>
+                            <ImageView
+                                android:id="@+id/faqChevron3"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="#999999"/>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/faqAnswer3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Open the case in the viewer, click the 'Share' button in the toolbar, and enter your colleague's email address or generate a secure link."
+                            android:textColor="#666666"
+                            android:textSize="13sp"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Contact IT Support -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact IT Support"
+                android:textColor="#1A1C1E"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="1dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Email -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_email"
+                            app:tint="@color/brand_blue"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                             <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Email"
+                                android:textColor="#999999"
+                                android:textSize="12sp"/>
+                             <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="support@smartpacs.ai"
+                                android:textColor="#1A1C1E"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Phone -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_phone"
+                            app:tint="@color/brand_blue"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                             <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Phone"
+                                android:textColor="#999999"
+                                android:textSize="12sp"/>
+                             <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+1 (800) 123-4567"
+                                android:textColor="#1A1C1E"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubmitFeedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="8dp"
+                        android:backgroundTint="#2962FF"
+                        android:text="Submit Feedback"
+                        android:stateListAnimator="@null"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Resources -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Resources"
+                android:textColor="#1A1C1E"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+            
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="1dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    
+                    <TextView
+                        android:id="@+id/btnUserGuide"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:text="User Guide (PDF)"
+                         android:textColor="@color/brand_blue"
+                         android:textSize="14sp"
+                         android:paddingVertical="12dp"
+                         android:background="#F8F9FA"
+                         android:paddingStart="16dp"
+                         android:layout_marginBottom="8dp"/>
+                         
+                    <TextView
+                        android:id="@+id/btnVideoTutorials"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:text="Video Tutorials"
+                         android:textColor="@color/brand_blue"
+                         android:textSize="14sp"
+                         android:paddingVertical="12dp"
+                         android:background="#F8F9FA"
+                         android:paddingStart="16dp"
+                         android:layout_marginBottom="8dp"/>
+                         
+                    <TextView
+                        android:id="@+id/btnPrivacyPolicy"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:text="Privacy Policy"
+                         android:textColor="@color/brand_blue"
+                         android:textSize="14sp"
+                         android:paddingVertical="12dp"
+                         android:background="#F8F9FA"
+                         android:paddingStart="16dp"
+                         android:layout_marginBottom="8dp"/>
+                         
+                    <TextView
+                        android:id="@+id/btnTerms"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:text="Terms &amp; Conditions"
+                         android:textColor="@color/brand_blue"
+                         android:textSize="14sp"
+                         android:paddingVertical="12dp"
+                         android:background="#F8F9FA"
+                         android:paddingStart="16dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:background="@null"
+                android:hint="Search help articles..."
+                android:inputType="text"
+                android:textColor="#1A1C1E"
+                android:textColorHint="#999999"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
