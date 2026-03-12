@@ -10,7 +10,7 @@ object ApiClient {
 
     // ✅ Base URL for Django backend (Must end with /)
     // Using 10.0.2.2 for Android Emulator Localhost
-    private const val BASE_URL = "http://172.23.52.14:8000/"
+    private const val BASE_URL = "http://172.23.49.93:8000/"
 
     private val logger = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

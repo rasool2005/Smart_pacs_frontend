@@ -23,14 +23,25 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/tvPatientStatus"
+            app:layout_constraintEnd_toStartOf="@+id/ivDeletePatient"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivDeletePatient"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_trash"
+            android:contentDescription="Delete Patient"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FF4B4B" />
 
         <TextView
             android:id="@+id/tvPatientStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_active_tag"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
@@ -38,8 +49,8 @@
             android:textColor="#2E7D32"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPatientName" />
 
         <TextView
             android:id="@+id/tvPatientMeta"
@@ -50,7 +61,7 @@
             android:textColor="@color/text_grey"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvPatientName" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPatientStatus" />
 
         <TextView
             android:id="@+id/tvLastVisit"

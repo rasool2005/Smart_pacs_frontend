@@ -11,7 +11,8 @@ data class SaveReportRequest(
     val location: String,
     val observation: String,
     val severity: String,
-    val impression: String
+    val impression: String,
+    val image_uri: String? = null
 )
 
 data class AiReport(
@@ -25,7 +26,8 @@ data class AiReport(
     val observation: String,
     val severity: String,
     val impression: String,
-    val created_at: String
+    val created_at: String,
+    val image_uri: String? = null
 ) : Serializable
 
 data class SendEmailRequest(

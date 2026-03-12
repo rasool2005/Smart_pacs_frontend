@@ -47,4 +47,5 @@ dependencies {
     implementation(libs.ucrop)
     implementation("com.hbb20:ccp:2.7.3")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 }

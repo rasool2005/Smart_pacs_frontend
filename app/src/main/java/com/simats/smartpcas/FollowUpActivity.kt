@@ -6,6 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -67,13 +68,46 @@ class FollowUpActivity : BaseActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = AppointmentAdapter(emptyList()) { appointment ->
-            val intent = Intent(this, AppointmentDetailsActivity::class.java)
-            intent.putExtra("STUDY_OBJECT", appointment)
-            startActivity(intent)
-        }
+        adapter = AppointmentAdapter(
+            emptyList(),
+            onDeleteClick = { appointment ->
+                showDeleteConfirmationDialog(appointment)
+            },
+            onItemClick = { appointment ->
+                val intent = Intent(this, AppointmentDetailsActivity::class.java)
+                intent.putExtra("STUDY_OBJECT", appointment)
+                startActivity(intent)
+            }
+        )
         rvUpcoming.layoutManager = LinearLayoutManager(this)
         rvUpcoming.adapter = adapter
+    }
+
+    private fun showDeleteConfirmationDialog(appointment: Study) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Appointment")
+            .setMessage("Are you sure you want to delete this appointment?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteAppointment(appointment.id)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteAppointment(studyId: Int) {
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.deleteStudy(studyId)
+                if (response.isSuccessful) {
+                    Toast.makeText(this@FollowUpActivity, "Appointment deleted", Toast.LENGTH_SHORT).show()
+                    fetchAppointments()
+                } else {
+                    Toast.makeText(this@FollowUpActivity, "Failed to delete appointment", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@FollowUpActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun fetchAppointments() {

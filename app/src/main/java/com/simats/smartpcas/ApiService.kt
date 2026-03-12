@@ -36,11 +36,21 @@ interface ApiService {
     @GET("api/patients/")
     suspend fun getPatients(): Response<PatientsResponse>
 
+    @DELETE("api/delete-patient/{patient_id}/")
+    suspend fun deletePatient(
+        @Path("patient_id") patientId: Int
+    ): Response<SimpleResponse>
+
     @FormUrlEncoded
     @POST("api/user-studies/")
     suspend fun getStudies(
         @Field("user_id") userId: Int
     ): Response<StudiesResponse>
+
+    @DELETE("api/delete-study/{study_id}/")
+    suspend fun deleteStudy(
+        @Path("study_id") studyId: Int
+    ): Response<SimpleResponse>
 
     @FormUrlEncoded
     @POST("api/save-personal-info/")
@@ -78,9 +88,9 @@ interface ApiService {
         @Field("user_id") user_id: Int
     ): Response<GetPersonalInfoResponse>
 
-    // ✅ Multipart Image Upload
+    // Image Upload
     @Multipart
-    @POST("api/predict-scan/")
+    @POST("api/predict_scan/")
     suspend fun predictImage(
         @Part file: MultipartBody.Part,
         @Part("scan_type") scanType: RequestBody
@@ -91,7 +101,7 @@ interface ApiService {
         @Body request: ChangePasswordRequest
     ): Response<ChangePasswordResponse>
 
-    // ✅ AI Reports Endpoints
+    // AI Reports
     @POST("api/save-ai-report/")
     suspend fun saveAiReport(
         @Body request: SaveReportRequest
@@ -102,6 +112,11 @@ interface ApiService {
         @Query("user_id") userId: Int
     ): Response<AiReportsResponse>
 
+    @DELETE("api/delete-ai-report/{report_id}/")
+    suspend fun deleteReport(
+        @Path("report_id") reportId: Int
+    ): Response<SimpleResponse>
+
     @Streaming
     @GET("api/download-report/{report_id}/")
     suspend fun downloadReport(
@@ -111,5 +126,22 @@ interface ApiService {
     @POST("api/send-report-email/")
     suspend fun sendReportEmail(
         @Body request: SendEmailRequest
+    ): Response<SimpleResponse>
+
+    // ✅ FORGOT PASSWORD
+
+    @POST("api/send-otp/")
+    suspend fun sendOtp(
+        @Body request: ForgotPasswordRequest
+    ): Response<ForgotPasswordResponse>
+
+    @POST("api/verify-otp/")
+    suspend fun verifyOtp(
+        @Body request: VerifyOtpRequest
+    ): Response<SimpleResponse>
+
+    @POST("api/reset-password/")
+    suspend fun resetPassword(
+        @Body request: ResetPasswordRequest
     ): Response<SimpleResponse>
 }

@@ -86,6 +86,15 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun populateData(report: AiReport) {
+        val ivReportImage = findViewById<ImageView>(R.id.ivReportImage)
+        val imageResId = when (report.examination_type.lowercase()) {
+            "ct scan", "ct" -> R.drawable.real_ct_scan
+            "mri", "mri brain" -> R.drawable.real_mri
+            "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
+            else -> R.drawable.img_mock_ct
+        }
+        ivReportImage.setImageResource(imageResId)
+
         findViewById<TextView>(R.id.tvExaminationType).text = "${report.examination_type} Scan"
         try {
             val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())

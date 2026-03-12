@@ -1,0 +1,117 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:61:9 Unresolved reference 'setupRecyclerView'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:9 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:17 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:19 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:33 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:34 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:43 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:44 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:45 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:47 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:56 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:57 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:58 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:60 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:60 Function declaration must have a name.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:62 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:93:77 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:97:25 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:98:28 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:99:31 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:100:30 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:101:28 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:106:29 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:107:36 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:108:36 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:114:42 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:117:36 Unresolved reference 'selectedReport'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:9 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:18 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:19 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:33 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:35 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:54 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:55 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:127:59 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:128:9 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:128:18 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:128:19 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:128:27 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:128:29 Syntax error: Expecting member declaration.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:132:9 Unresolved reference 'lifecycleScope'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:133:13 Unresolved reference 'viewModel'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:133:50 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:135:24 One type argument expected. Use class 'Loading' if you do not intend to pass type arguments.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:136:25 Unresolved reference 'progressBar'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:137:25 Unresolved reference 'rvReports'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:138:25 Unresolved reference 'tvEmptyState'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:140:24 One type argument expected. Use class 'Success' if you do not intend to pass type arguments.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:141:25 Unresolved reference 'progressBar'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:142:48 Unresolved reference 'data'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:142:56 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:143:49 Unresolved reference 'intent'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:145:51 Unresolved reference 'not' for operator '!'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:146:46 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:147:50 Unresolved reference 'impression'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:160:29 Unresolved reference 'tvEmptyState'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:161:29 Unresolved reference 'rvReports'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:163:29 Unresolved reference 'tvEmptyState'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:164:29 Unresolved reference 'rvReports'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:166:29 Unresolved reference 'adapter'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:166:65 Unresolved reference 'patientNamesList'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:169:24 One type argument expected. Use class 'Error' if you do not intend to pass type arguments.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:170:25 Unresolved reference 'progressBar'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:171:25 Unresolved reference 'tvEmptyState'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:172:25 Unresolved reference 'tvEmptyState'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:172:54 Unresolved reference 'message'.
+e: file:///C:/Users/khada/AndroidStudioProjects/smartpcas/app/src/main/java/com/simats/smartpcas/ReportsListActivity.kt:178:1 Syntax error: Expecting a top level declaration.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 5s
+27 actionable tasks: 1 executed, 26 up-to-date

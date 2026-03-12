@@ -17,22 +17,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 
-class ReportsListActivity : AppCompatActivity() {
+class AiScanHistoryActivity : AppCompatActivity() {
 
     private lateinit var viewModel: AiReportViewModel
     private lateinit var sessionManager: SessionManager
     private lateinit var adapter: ReportsAdapter
-    private var patientNamesList: List<String> = emptyList()
-
+    
     private lateinit var rvReports: RecyclerView
     private lateinit var progressBar: ProgressBar
     private lateinit var llEmptyState: View
     private lateinit var tvEmptyMessage: TextView
+    private var targetPatientName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_reports_list)
+        setContentView(R.layout.activity_ai_scan_history)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -47,38 +47,22 @@ class ReportsListActivity : AppCompatActivity() {
         llEmptyState = findViewById(R.id.llEmptyState)
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage)
 
+        targetPatientName = intent.getStringExtra("PATIENT_NAME")
+
         sessionManager = SessionManager(this)
         viewModel = ViewModelProvider(this)[AiReportViewModel::class.java]
 
         setupRecyclerView()
         setupObservers()
-
-        val userId = sessionManager.getUserId()
-        if (userId != -1) {
-            fetchPatientNamesAndReports(userId)
-        } else {
-            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_SHORT).show()
-        }
     }
 
-    private fun fetchPatientNamesAndReports(userId: Int) {
-        lifecycleScope.launch {
-            progressBar.visibility = View.VISIBLE
-            try {
-                val response = ApiClient.apiService.getPatients()
-                if (response.isSuccessful && response.body() != null) {
-                    val patients = response.body()?.patients ?: emptyList()
-                    val names = patients.map { it.patient_name }.filter { it.isNotBlank() }
-                    patientNamesList = names.ifEmpty { listOf("Unknown Patient") }
-                } else {
-                    patientNamesList = listOf("Unknown Patient")
-                }
-            } catch (e: Exception) {
-                patientNamesList = listOf("Unknown Patient")
-            }
-            
-            // Proceed to fetch reports after getting names
+    override fun onResume() {
+        super.onResume()
+        val userId = sessionManager.getUserId()
+        if (userId != -1) {
             viewModel.getAiReports(userId)
+        } else {
+            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -88,25 +72,59 @@ class ReportsListActivity : AppCompatActivity() {
             patientNames = emptyList(),
             onDeleteClick = { selectedReport ->
                 androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Delete Report")
-                    .setMessage("Are you sure you want to permanently delete this report?")
+                    .setTitle("Delete Scan History")
+                    .setMessage("Are you sure you want to permanently delete this scan?")
                     .setPositiveButton("Delete") { _, _ ->
-                        adapter.removeItem(selectedReport)
                         viewModel.deleteReport(selectedReport.id)
-                        
-                        // Show empty state if list is now empty
-                        if (adapter.itemCount == 0) {
-                            llEmptyState.visibility = View.VISIBLE
-                            rvReports.visibility = View.GONE
-                        }
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
             },
             onReportClick = { selectedReport ->
-                // ✅ Changed from AiResultsActivity back to ReportDetailActivity to show the structured report
-                val intent = Intent(this, ReportDetailActivity::class.java)
-                intent.putExtra("report_data", selectedReport)
+                val intent = Intent(this, AiResultsActivity::class.java)
+                
+                val finding = AiFinding(
+                    title = selectedReport.finding_name ?: "Normal",
+                    location = selectedReport.location ?: "N/A",
+                    description = selectedReport.observation ?: "No observation recorded.",
+                    confidence = selectedReport.confidence_score ?: 0.0,
+                    severity = selectedReport.severity ?: "Low"
+                )
+                
+                val predictionResponse = PredictionResponse(
+                    status = "success",
+                    scan_type = selectedReport.examination_type,
+                    confidence_score = selectedReport.confidence_score,
+                    confidence_level = selectedReport.confidence_level,
+                    message = "Analysis loaded from history.",
+                    findings = listOf(finding)
+                )
+                
+                // Extract patient name from impression for better display in Results
+                val imp = selectedReport.impression ?: ""
+                val patientName = if (imp.startsWith("[Patient: ")) {
+                    imp.substringAfter("[Patient: ").substringBefore("]")
+                } else {
+                    "Unknown Patient"
+                }
+                
+                intent.putExtra("prediction_results", predictionResponse)
+                intent.putExtra("scan_type", selectedReport.examination_type)
+                intent.putExtra("PATIENT_NAME", patientName)
+                intent.putExtra("is_history", true)
+                
+                if (!selectedReport.image_uri.isNullOrEmpty()) {
+                    intent.putExtra("image_uri", selectedReport.image_uri)
+                } else {
+                    val imageResId = when (selectedReport.examination_type?.lowercase()) {
+                        "ct scan", "ct" -> R.drawable.real_ct_scan
+                        "mri", "mri brain" -> R.drawable.real_mri
+                        "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
+                        else -> R.drawable.img_mock_ct
+                    }
+                    intent.putExtra("image_res_id", imageResId)
+                }
+                
                 startActivity(intent)
             }
         )
@@ -126,17 +144,15 @@ class ReportsListActivity : AppCompatActivity() {
                     is Resource.Success -> {
                         progressBar.visibility = View.GONE
                         val reports = resource.data ?: emptyList()
-                        val targetPatientName = intent.getStringExtra("PATIENT_NAME")
                         
                         val filteredReports = if (!targetPatientName.isNullOrEmpty()) {
                             reports.filter { report ->
                                 val imp = report.impression ?: ""
-                                val pName = if (imp.startsWith("[Patient: ")) {
-                                    imp.substringAfter("[Patient: ").substringBefore("]")
-                                } else {
-                                    "Legacy Report"
-                                }
-                                pName == targetPatientName
+                                val obs = report.observation ?: ""
+                                val find = report.finding_name ?: ""
+                                imp.contains(targetPatientName!!, ignoreCase = true) || 
+                                obs.contains(targetPatientName!!, ignoreCase = true) ||
+                                find.contains(targetPatientName!!, ignoreCase = true)
                             }
                         } else {
                             reports
@@ -145,11 +161,12 @@ class ReportsListActivity : AppCompatActivity() {
                         if (filteredReports.isEmpty()) {
                             llEmptyState.visibility = View.VISIBLE
                             rvReports.visibility = View.GONE
+                            tvEmptyMessage.text = if (targetPatientName.isNullOrEmpty()) 
+                                "No scan history available." else "No scan history found for $targetPatientName."
                         } else {
                             llEmptyState.visibility = View.GONE
                             rvReports.visibility = View.VISIBLE
-                            
-                            adapter.updateData(filteredReports, patientNamesList)
+                            adapter.updateData(filteredReports, listOf(targetPatientName ?: "Unknown"))
                         }
                     }
                     is Resource.Error -> {
@@ -163,22 +180,10 @@ class ReportsListActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.deleteReportState.collect { resource ->
-                when (resource) {
-                    is Resource.Loading -> {
-                        progressBar.visibility = View.VISIBLE
-                    }
-                    is Resource.Success -> {
-                        progressBar.visibility = View.GONE
-                        Toast.makeText(this@ReportsListActivity, "Report deleted successfully", Toast.LENGTH_SHORT).show()
-                        val userId = sessionManager.getUserId()
-                        if (userId != -1) {
-                            fetchPatientNamesAndReports(userId)
-                        }
-                    }
-                    is Resource.Error -> {
-                        progressBar.visibility = View.GONE
-                    }
-                    else -> {}
+                if (resource is Resource.Success) {
+                    Toast.makeText(this@AiScanHistoryActivity, "Deleted successfully", Toast.LENGTH_SHORT).show()
+                    val userId = sessionManager.getUserId()
+                    if (userId != -1) viewModel.getAiReports(userId)
                 }
             }
         }

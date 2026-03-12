@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:text="Reports"
+            android:text="Scan History"
             android:textColor="#1A1C1E"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -60,11 +60,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="No reports available."
+            android:text="No scan history available."
             android:textColor="#73777F"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp" />
-
+            android:textSize="16sp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

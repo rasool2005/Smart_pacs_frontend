@@ -22,6 +22,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
 
 class AiScannerActivity : BaseActivity() {
 
@@ -99,6 +100,9 @@ class AiScannerActivity : BaseActivity() {
     private fun uploadImageForPrediction(uri: Uri) {
         val file = getFileFromUri(uri) ?: return
         
+        // Use the internal file URI to avoid SecurityException
+        val internalUri = Uri.fromFile(file)
+
         // 🚨 Validate if image is a medical scan
         if (!isMedicalImage(file)) {
             Toast.makeText(this, "Invalid Image: Please upload only X-Ray, CT, or MRI medical scans.", Toast.LENGTH_LONG).show()
@@ -125,23 +129,35 @@ class AiScannerActivity : BaseActivity() {
                     val prediction = response.body()!!
 
                     val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                    intent.putExtra("image_uri", uri.toString())
+                    intent.putExtra("image_uri", internalUri.toString())
                     intent.putExtra("prediction_results", prediction)
                     intent.putExtra("scan_type", selectedScanType)
+                    val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
+                    if (pName != null) {
+                        intent.putExtra("PATIENT_NAME", pName)
+                    }
                     startActivity(intent)
                 } else {
-                    // Pass URI and scan type to AiResultsActivity even on failure to allow retry/fallback there
+                    // Pass internal URI and scan type to AiResultsActivity even on failure
                     val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                    intent.putExtra("image_uri", uri.toString())
+                    intent.putExtra("image_uri", internalUri.toString())
                     intent.putExtra("scan_type", selectedScanType)
+                    val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
+                    if (pName != null) {
+                        intent.putExtra("PATIENT_NAME", pName)
+                    }
                     startActivity(intent)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Pass URI and scan type to AiResultsActivity on connection error
+                // Pass internal URI and scan type to AiResultsActivity on connection error
                 val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                intent.putExtra("image_uri", uri.toString())
+                intent.putExtra("image_uri", internalUri.toString())
                 intent.putExtra("scan_type", selectedScanType)
+                val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
+                if (pName != null) {
+                    intent.putExtra("PATIENT_NAME", pName)
+                }
                 startActivity(intent)
             }
         }
@@ -150,7 +166,9 @@ class AiScannerActivity : BaseActivity() {
     private fun getFileFromUri(uri: Uri): File? {
         return try {
             val inputStream = contentResolver.openInputStream(uri)
-            val file = File(cacheDir, "upload_image.jpg")
+            // Use a unique name to prevent overwriting images in history
+            val fileName = "scan_${UUID.randomUUID()}.jpg"
+            val file = File(filesDir, fileName) // Use filesDir for better persistence than cacheDir
             val outputStream = FileOutputStream(file)
             inputStream?.copyTo(outputStream)
             inputStream?.close()

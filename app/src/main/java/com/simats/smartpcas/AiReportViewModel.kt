@@ -1,6 +1,7 @@
 package com.simats.smartpcas
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,13 +9,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 
-class AiReportViewModel : ViewModel() {
+class AiReportViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = AiReportRepository()
+    private val repository = AiReportRepository(application)
 
-    // State for saving a report
     private val _saveReportState = MutableStateFlow<Resource<SimpleResponse>?>(null)
     val saveReportState: StateFlow<Resource<SimpleResponse>?> = _saveReportState.asStateFlow()
+
+    private val _deleteReportState = MutableStateFlow<Resource<SimpleResponse>?>(null)
+    val deleteReportState: StateFlow<Resource<SimpleResponse>?> = _deleteReportState.asStateFlow()
 
     // State for fetching reports list
     private val _reportsListState = MutableStateFlow<Resource<List<AiReport>>>(Resource.Loading())
@@ -33,6 +36,14 @@ class AiReportViewModel : ViewModel() {
             _saveReportState.value = Resource.Loading()
             val result = repository.saveReport(request)
             _saveReportState.value = result
+        }
+    }
+
+    fun deleteReport(reportId: Int) {
+        viewModelScope.launch {
+            _deleteReportState.value = Resource.Loading()
+            val result = repository.deleteReport(reportId)
+            _deleteReportState.value = result
         }
     }
 

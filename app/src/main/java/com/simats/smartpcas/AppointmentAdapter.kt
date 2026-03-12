@@ -3,12 +3,14 @@ package com.simats.smartpcas
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class AppointmentAdapter(
     private var appointments: List<Study>,
+    private val onDeleteClick: (Study) -> Unit,
     private val onItemClick: (Study) -> Unit
 ) : RecyclerView.Adapter<AppointmentAdapter.ViewHolder>() {
 
@@ -18,6 +20,7 @@ class AppointmentAdapter(
         val tvDate: TextView = view.findViewById(R.id.tvDate)
         val tvTime: TextView = view.findViewById(R.id.tvTime)
         val tvTag: TextView = view.findViewById(R.id.tvTag)
+        val ivDelete: ImageView = view.findViewById(R.id.ivDeleteAppointment)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,12 +48,15 @@ class AppointmentAdapter(
         }
 
         holder.itemView.setOnClickListener { onItemClick(appointment) }
+        
+        holder.ivDelete.setOnClickListener {
+            onDeleteClick(appointment)
+        }
     }
 
     override fun getItemCount() = appointments.size
 
     fun updateData(newAppointments: List<Study>) {
-        // Simple duplicate removal based on ID
         appointments = newAppointments.distinctBy { it.id }
         notifyDataSetChanged()
     }

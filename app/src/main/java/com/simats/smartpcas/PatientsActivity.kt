@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -53,11 +54,47 @@ class PatientsActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = PatientAdapter(emptyList()) { patient ->
-            openDetails(patient)
-        }
+        adapter = PatientAdapter(
+            patients = emptyList(),
+            onDeleteClick = { patient ->
+                showDeleteConfirmation(patient)
+            },
+            onItemClick = { patient ->
+                openDetails(patient)
+            }
+        )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+    }
+
+    private fun showDeleteConfirmation(patient: Patient) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Patient")
+            .setMessage("Are you sure you want to delete ${patient.patient_name}? This will also remove their associated history.")
+            .setPositiveButton("Delete") { _, _ ->
+                deletePatient(patient)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deletePatient(patient: Patient) {
+        progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.deletePatient(patient.patient_id)
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    Toast.makeText(this@PatientsActivity, "Patient deleted successfully", Toast.LENGTH_SHORT).show()
+                    fetchPatients() // Refresh the list
+                } else {
+                    Toast.makeText(this@PatientsActivity, "Failed to delete patient", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                progressBar.visibility = View.GONE
+                Toast.makeText(this@PatientsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -124,7 +161,7 @@ class PatientsActivity : AppCompatActivity() {
                         val etSearchPatients = findViewById<EditText>(R.id.etSearchPatients)
                         filterPatients(etSearchPatients.text.toString())
                     } else {
-                        Toast.makeText(this@PatientsActivity, "Error: No patients found", Toast.LENGTH_SHORT).show()
+                        adapter.updateData(emptyList())
                     }
                 } else {
                     Toast.makeText(this@PatientsActivity, "Failed to fetch patients", Toast.LENGTH_SHORT).show()

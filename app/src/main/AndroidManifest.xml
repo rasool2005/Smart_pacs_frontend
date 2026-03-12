@@ -163,7 +163,15 @@
             android:exported="false" />
 
         <activity
+            android:name=".AiScanHistoryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ReportDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HospitalSelectionActivity"
             android:exported="false" />
 
         <!-- Splash Screen -->

@@ -45,7 +45,7 @@ class SplashActivity : BaseActivity() {
         } else {
             // No credentials, check if onboarding was seen
             if (sessionManager.hasSeenOnboarding()) {
-                startActivity(Intent(this, LoginActivity::class.java))
+                startActivity(Intent(this, HospitalSelectionActivity::class.java))
             } else {
                 startActivity(Intent(this, MainActivity::class.java))
             }

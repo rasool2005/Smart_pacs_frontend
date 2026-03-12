@@ -2,9 +2,14 @@ package com.simats.smartpcas
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.card.MaterialCardView
 
 class StudiesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +27,7 @@ class StudiesActivity : BaseActivity() {
         setupBottomNavigation()
 
         // Back button logic
-        findViewById<android.widget.ImageView>(R.id.btnBack).setOnClickListener {
+        findViewById<ImageView>(R.id.btnBack).setOnClickListener {
             finish()
         }
 
@@ -36,20 +41,50 @@ class StudiesActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardCtChest).setOnClickListener {
+        val cardCtChest = findViewById<MaterialCardView>(R.id.cardCtChest)
+        cardCtChest.setOnClickListener {
             openDetails("CT Chest", "John Doe • MRN-12345", "Jan 20, 2026", "High")
         }
 
-        findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardMriBrain).setOnClickListener {
+        val cardMriBrain = findViewById<MaterialCardView>(R.id.cardMriBrain)
+        cardMriBrain.setOnClickListener {
             openDetails("MRI Brain", "Sarah Smith • MRN-12346", "Jan 19, 2026", "Critical")
         }
         
-        findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardXrayChest).setOnClickListener {
+        val cardXrayChest = findViewById<MaterialCardView>(R.id.cardXrayChest)
+        cardXrayChest.setOnClickListener {
             openDetails("X-Ray Chest", "Mike Johnson • MRN-12347", "Jan 18, 2026", "Normal")
         }
         
-        findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardCtAbdomen).setOnClickListener {
+        val cardCtAbdomen = findViewById<MaterialCardView>(R.id.cardCtAbdomen)
+        cardCtAbdomen.setOnClickListener {
             openDetails("CT Abdomen", "Emily Davis • MRN-12348", "Jan 17, 2026", "High")
         }
+
+        // Delete button listeners
+        findViewById<ImageView>(R.id.btnDeleteStudy1).setOnClickListener {
+            showDeleteConfirmation(cardCtChest)
+        }
+        findViewById<ImageView>(R.id.btnDeleteStudy2).setOnClickListener {
+            showDeleteConfirmation(cardMriBrain)
+        }
+        findViewById<ImageView>(R.id.btnDeleteStudy3).setOnClickListener {
+            showDeleteConfirmation(cardXrayChest)
+        }
+        findViewById<ImageView>(R.id.btnDeleteStudy4).setOnClickListener {
+            showDeleteConfirmation(cardCtAbdomen)
+        }
+    }
+
+    private fun showDeleteConfirmation(view: View) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Study")
+            .setMessage("Are you sure you want to delete this study?")
+            .setPositiveButton("Delete") { _, _ ->
+                view.visibility = View.GONE
+                Toast.makeText(this, "Study deleted successfully", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

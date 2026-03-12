@@ -1,0 +1,139 @@
+commit 99c82a292a45176a6d79ef2f51e4b184e19f5e4e
+Author: rasool2005 <khadarrasool2005@gmail.com>
+Date:   Thu Mar 5 10:30:50 2026 +0530
+
+    first commit
+
+diff --git a/app/src/main/res/layout/item_ai_report.xml b/app/src/main/res/layout/item_ai_report.xml
+new file mode 100644
+index 0000000..2101fb4
+--- /dev/null
++++ b/app/src/main/res/layout/item_ai_report.xml
+@@ -0,0 +1,127 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:layout_marginHorizontal="16dp"
++    android:layout_marginVertical="8dp"
++    app:cardBackgroundColor="@color/white"
++    app:cardCornerRadius="16dp"
++    app:cardElevation="2dp"
++    app:strokeColor="#E0E0E0"
++    app:strokeWidth="1dp">
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:orientation="vertical"
++        android:padding="16dp">
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="horizontal"
++            android:gravity="center_vertical">
++            
++            <ImageView
++                android:layout_width="40dp"
++                android:layout_height="40dp"
++                android:src="@drawable/ic_reports"
++                android:padding="8dp"
++                android:background="@drawable/circle_background_purple"
++                app:tint="@color/white"/>
++
++            <LinearLayout
++                android:layout_width="0dp"
++                android:layout_height="wrap_content"
++                android:layout_weight="1"
++                android:orientation="vertical"
++                android:layout_marginStart="12dp">
++
++                <TextView
++                    android:id="@+id/tvExaminationType"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="X-Ray Scan"
++                    android:textColor="#191C1E"
++                    android:textSize="16sp"
++                    android:textStyle="bold" />
++
++                <TextView
++                    android:id="@+id/tvPatientName"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Patient: John Doe"
++                    android:textColor="#44474E"
++                    android:textSize="14sp"
++                    android:layout_marginTop="2dp" />
++
++                <TextView
++                    android:id="@+id/tvDate"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Feb 24, 2026"
++                    android:textColor="#73777F"
++                    android:textSize="12sp"
++                    android:layout_marginTop="2dp" />
++            </LinearLayout>
++
++            <TextView
++                android:id="@+id/tvSeverityTag"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:background="@drawable/bg_fff5f5_rounded"
++                android:paddingHorizontal="12dp"
++                android:paddingVertical="4dp"
++                android:text="High"
++                android:textColor="@color/critical_red"
++                android:textSize="12sp"
++                android:textStyle="bold" />
++        </LinearLayout>
++
++        <View
++            android:layout_width="match_parent"
++            android:layout_height="1dp"
++            android:background="#F0F0F0"
++            android:layout_marginVertical="12dp"/>
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:gravity="center_vertical">
++            
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="Primary Finding: "
++                android:textColor="#73777F"
++                android:textSize="14sp"/>
++
++            <TextView
++                android:id="@+id/tvFindingInfo"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="Pneumonia"
++                android:textColor="#191C1E"
++                android:textSize="14sp"
++                android:textStyle="bold"/>
++                
++            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
++            
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="View Details"
++                android:textColor="@color/brand_blue"
++                android:textSize="14sp"
++                android:textStyle="bold"/>
++            
++            <ImageView
++                android:layout_width="16dp"
++                android:layout_height="16dp"
++                android:src="@drawable/ic_chevron_right"
++                app:tint="@color/brand_blue"
++                android:layout_marginStart="4dp"/>
++        </LinearLayout>
++    </LinearLayout>
++</com.google.android.material.card.MaterialCardView>

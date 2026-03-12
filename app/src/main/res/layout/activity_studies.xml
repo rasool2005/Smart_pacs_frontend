@@ -118,6 +118,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/btnDeleteStudy1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="80dp"
+                        android:src="@drawable/ic_delete"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvStudyTitle1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/tvStudyTitle1"
+                        app:tint="@color/critical_red" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -193,6 +204,17 @@
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/btnDeleteStudy2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="80dp"
+                        android:src="@drawable/ic_delete"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvStudyTitle2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/tvStudyTitle2"
+                        app:tint="@color/critical_red" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -270,6 +292,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/btnDeleteStudy3"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="80dp"
+                        android:src="@drawable/ic_delete"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvStudyTitle3"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/tvStudyTitle3"
+                        app:tint="@color/critical_red" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -345,6 +378,17 @@
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/btnDeleteStudy4"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="80dp"
+                        android:src="@drawable/ic_delete"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvStudyTitle4"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/tvStudyTitle4"
+                        app:tint="@color/critical_red" />
 
                     <TextView
                         android:layout_width="wrap_content"

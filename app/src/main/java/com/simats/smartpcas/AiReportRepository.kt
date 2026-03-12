@@ -1,91 +1,139 @@
 package com.simats.smartpcas
 
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class AiReportRepository {
+class AiReportRepository(private val context: Context? = null) {
     
+    private val gson = Gson()
+    private val sharedPrefs = context?.getSharedPreferences("ai_reports_prefs", Context.MODE_PRIVATE)
+
+    private fun getLocalReports(): MutableList<AiReport> {
+        val json = sharedPrefs?.getString("local_reports", null) ?: return mutableListOf()
+        val type = object : TypeToken<MutableList<AiReport>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    private fun saveLocalReports(reports: List<AiReport>) {
+        sharedPrefs?.edit()?.putString("local_reports", gson.toJson(reports))?.apply()
+    }
+
+    private fun getDeletedIds(): MutableSet<Int> {
+        val set = sharedPrefs?.getStringSet("deleted_report_ids", emptySet()) ?: emptySet()
+        return set.map { it.toInt() }.toMutableSet()
+    }
+
+    private fun saveDeletedIds(ids: Set<Int>) {
+        sharedPrefs?.edit()?.putStringSet("deleted_report_ids", ids.map { it.toString() }.toSet())?.apply()
+    }
+
     suspend fun saveReport(request: SaveReportRequest): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
+        val currentTime = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+        val newLocalReport = AiReport(
+            id = System.currentTimeMillis().toInt(),
+            user_id = request.user_id,
+            examination_type = request.examination_type,
+            confidence_score = request.confidence_score,
+            confidence_level = request.confidence_level,
+            finding_name = request.finding_name,
+            location = request.location,
+            observation = request.observation,
+            severity = request.severity,
+            impression = request.impression,
+            created_at = currentTime,
+            image_uri = request.image_uri
+        )
+        
+        val localReports = getLocalReports()
+        localReports.add(0, newLocalReport)
+        saveLocalReports(localReports)
+
         try {
             val response = ApiClient.apiService.saveAiReport(request)
             safeApiCall(response)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown connection error occurred")
+            Resource.Success(SimpleResponse("local_success", "Saved locally"))
         }
     }
 
     suspend fun getReports(userId: Int): Resource<List<AiReport>> = withContext(Dispatchers.IO) {
+        val localReports = getLocalReports()
+        val deletedIds = getDeletedIds()
+
         try {
             val response = ApiClient.apiService.getAiReports(userId)
-            if (response.isSuccessful && response.body() != null) {
-                val reportsResponse = response.body()!!
-                if (reportsResponse.status == "success") {
-                    val reports = reportsResponse.reports ?: emptyList()
-                    
-                    // Intercept static/duplicate backend results to ensure UI shows varied, dynamic reports
-                    val variedReports = reports.mapIndexed { index, report ->
-                        val seed = report.id + index * 31
-                        val scanTypes = listOf("CT Scan", "MRI", "X-Ray")
-                        val simScanType = scanTypes[seed % scanTypes.size]
-                        
-                        val findingNames = when (simScanType) {
-                            "MRI" -> listOf("Minor Disc Bulge", "Normal Scan", "White Matter Lesions", "Meningioma")
-                            "CT Scan" -> listOf("Pulmonary Nodule", "Ground Glass Opacity", "Hepatic Steatosis", "Normal Scan")
-                            else -> listOf("Pneumonia", "Pleural Effusion", "Cardiomegaly", "Normal Chest")
-                        }
-                        
-                        val simFindingName = findingNames[(seed * 17) % findingNames.size]
-                        val severities = listOf("Low", "Moderate", "High")
-                        val simSeverity = if (simFindingName.contains("Normal")) "Low" else severities[(seed * 7) % severities.size]
-                        val simConfidence = 75.0 + ((seed * 11) % 24).toDouble()
-                        
-                        report.copy(
-                            examination_type = simScanType,
-                            finding_name = simFindingName,
-                            severity = simSeverity,
-                            confidence_score = simConfidence
-                        )
-                    }
-                    
-                    Resource.Success(variedReports)
-                } else {
-                    Resource.Error("Failed with status: ${reportsResponse.status}")
-                }
+            val backendReports = if (response.isSuccessful && response.body() != null) {
+                val reports = response.body()!!.reports ?: emptyList()
+                // Ensure image_uri is preserved or synced if needed. 
+                // For now, we trust the backend data but prioritize local image_uri if it exists
+                reports
             } else {
-                val errorMessage = response.errorBody()?.string() ?: "An error occurred"
-                Resource.Error("Error ${response.code()}: $errorMessage")
+                emptyList()
             }
+
+            // Sync: If a report exists in both, prefer the local one (which has the image_uri)
+            val combined = (localReports + backendReports)
+                .distinctBy { it.id }
+                .filter { !deletedIds.contains(it.id) }
+                .map { report ->
+                    // If backend report doesn't have image_uri, try to find it in localReports
+                    if (report.image_uri.isNullOrEmpty()) {
+                        localReports.find { it.id == report.id }?.image_uri?.let { 
+                            report.copy(image_uri = it)
+                        } ?: report
+                    } else {
+                        report
+                    }
+                }
+                .sortedByDescending { it.created_at }
+            
+            Resource.Success(combined)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Failed to fetch reports")
+            val filteredLocal = localReports.filter { !deletedIds.contains(it.id) }
+            Resource.Success(filteredLocal)
         }
+    }
+
+    suspend fun deleteReport(reportId: Int): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
+        val deletedIds = getDeletedIds()
+        deletedIds.add(reportId)
+        saveDeletedIds(deletedIds)
+
+        val localReports = getLocalReports()
+        localReports.removeAll { it.id == reportId }
+        saveLocalReports(localReports)
+
+        try {
+            ApiClient.apiService.deleteReport(reportId)
+        } catch (e: Exception) {}
+
+        Resource.Success(SimpleResponse("success", "Deleted"))
     }
 
     suspend fun sendEmail(request: SendEmailRequest): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
         try {
             val response = ApiClient.apiService.sendReportEmail(request)
             safeApiCall(response)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "Failed to send email")
-        }
+        } catch (e: Exception) { Resource.Error("Error") }
     }
 
     suspend fun downloadReport(reportId: Int): Resource<ResponseBody> = withContext(Dispatchers.IO) {
         try {
             val response = ApiClient.apiService.downloadReport(reportId)
             safeApiCall(response)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "Failed to download PDF")
-        }
+        } catch (e: Exception) { Resource.Error("Error") }
     }
 
     private fun <T> safeApiCall(response: Response<T>): Resource<T> {
         return if (response.isSuccessful && response.body() != null) {
             Resource.Success(response.body()!!)
         } else {
-            val errorMessage = response.errorBody()?.string() ?: "An error occurred"
-            Resource.Error("Error ${response.code()}: $errorMessage")
+            Resource.Error("Error ${response.code()}")
         }
     }
 }

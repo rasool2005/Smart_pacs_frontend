@@ -39,7 +39,7 @@ class MainActivity : BaseActivity() {
 
         findViewById<Button>(R.id.btnLogin).setOnClickListener {
             markOnboardingSeen()
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, HospitalSelectionActivity::class.java))
         }
     }
 
