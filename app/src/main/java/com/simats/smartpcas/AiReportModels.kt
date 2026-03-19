@@ -45,3 +45,8 @@ data class AiReportsResponse(
     val count: Int?,
     val reports: List<AiReport>?
 )
+
+data class AiChatResponse(
+    val status: String,
+    val response: String
+)

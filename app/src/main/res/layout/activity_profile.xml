@@ -142,6 +142,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tvCasesReviewed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="124"
@@ -168,6 +169,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tvPatientsThisMonth"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="45"
@@ -194,6 +196,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tvAiAssists"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="98%"

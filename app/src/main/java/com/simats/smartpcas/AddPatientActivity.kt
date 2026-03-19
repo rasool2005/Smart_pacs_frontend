@@ -92,12 +92,19 @@ class AddPatientActivity : AppCompatActivity() {
             return
         }
 
-        // Get full number with plus (e.g., +919391092540)
-        val fullPhoneNumber = ccp.fullNumberWithPlus
+        // Get full number without plus for better backend compatibility
+        val fullPhoneNumber = ccp.fullNumber
+
+        val userId = SessionManager(this).getUserId()
+        if (userId == -1) {
+            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         lifecycleScope.launch {
             try {
-                val request = AddPatientRequest(
+                val response = ApiClient.apiService.addPatient(
+                    doctor_id = userId,
                     patient_name = patientName,
                     dob = dob,
                     phone_number = fullPhoneNumber,
@@ -107,22 +114,25 @@ class AddPatientActivity : AppCompatActivity() {
                     allergies = allergies
                 )
 
-                val response = ApiClient.apiService.addPatient(request)
-
-
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.status == "success") {
+                        // We no longer rely on local ownedIds tracking as PatientsActivity now 
+                        // trusts the server-side filtering by userId.
                         Toast.makeText(this@AddPatientActivity, "Patient added successfully", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
                         finish()
                     } else {
-                        Toast.makeText(this@AddPatientActivity, "Error: ${body?.message ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                        val errorMsg = body?.message ?: "Server returned failure status"
+                        Toast.makeText(this@AddPatientActivity, "Error: $errorMsg", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Toast.makeText(this@AddPatientActivity, "Server Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    val errorBody = response.errorBody()?.string()
+                    Toast.makeText(this@AddPatientActivity, "Server Error ${response.code()}: $errorBody", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@AddPatientActivity, "Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddPatientActivity, "Network Error: ${e.message}", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
             }
         }
     }

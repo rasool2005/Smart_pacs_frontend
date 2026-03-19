@@ -87,13 +87,20 @@ class ReportDetailActivity : AppCompatActivity() {
 
     private fun populateData(report: AiReport) {
         val ivReportImage = findViewById<ImageView>(R.id.ivReportImage)
-        val imageResId = when (report.examination_type.lowercase()) {
-            "ct scan", "ct" -> R.drawable.real_ct_scan
-            "mri", "mri brain" -> R.drawable.real_mri
-            "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
-            else -> R.drawable.img_mock_ct
+        
+        if (!report.image_uri.isNullOrEmpty()) {
+            try {
+                val uri = android.net.Uri.parse(report.image_uri)
+                com.bumptech.glide.Glide.with(this)
+                    .load(uri)
+                    .error(R.drawable.img_mock_ct)
+                    .into(ivReportImage)
+            } catch (e: Exception) {
+                loadFallbackImage(ivReportImage, report.examination_type)
+            }
+        } else {
+            loadFallbackImage(ivReportImage, report.examination_type)
         }
-        ivReportImage.setImageResource(imageResId)
 
         findViewById<TextView>(R.id.tvExaminationType).text = "${report.examination_type} Scan"
         try {
@@ -111,6 +118,16 @@ class ReportDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvConfidenceLevel).text = report.confidence_level
         findViewById<TextView>(R.id.tvConfidenceScore).text = "(${report.confidence_score}%)"
         findViewById<TextView>(R.id.tvImpression).text = report.impression
+    }
+
+    private fun loadFallbackImage(ivReportImage: ImageView, examinationType: String) {
+        val imageResId = when (examinationType.lowercase()) {
+            "ct scan", "ct" -> R.drawable.real_ct_scan
+            "mri", "mri brain" -> R.drawable.real_mri
+            "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
+            else -> R.drawable.img_mock_ct
+        }
+        ivReportImage.setImageResource(imageResId)
     }
 
     private fun setupObservers() {

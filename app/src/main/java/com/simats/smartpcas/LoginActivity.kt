@@ -38,7 +38,19 @@ class LoginActivity : BaseActivity() {
             val password = etPassword.text?.toString()?.trim() ?: ""
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                loginUser(email, password)
+                val hasUppercase = password.any { it.isUpperCase() }
+                val hasLowercase = password.any { it.isLowerCase() }
+                val hasDigit = password.any { it.isDigit() }
+                val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+
+                if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+                    Toast.makeText(this@LoginActivity, "Invalid password. Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.", Toast.LENGTH_LONG).show()
+                } else {
+                    // Force logout/clear of previous session data before new login
+                    SessionManager(this@LoginActivity).logout()
+                    
+                    loginUser(email, password)
+                }
             } else {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
             }

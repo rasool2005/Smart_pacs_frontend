@@ -3,9 +3,11 @@ package com.simats.smartpcas
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,9 +21,21 @@ class SettingsActivity : BaseActivity() {
             insets
         }
 
-        // Language Selection
-        findViewById<android.view.View>(R.id.btnLanguage).setOnClickListener {
-            showLanguageSelectionDialog()
+        val sessionManager = SessionManager(this)
+
+        // Dark Mode Switch
+        val switchDarkMode = findViewById<SwitchMaterial>(R.id.switchDarkMode)
+        switchDarkMode.isChecked = sessionManager.isDarkMode()
+        
+        switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            sessionManager.setDarkMode(isChecked)
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            // Recreate to apply theme immediately
+            recreate()
         }
 
         // Privacy Settings
@@ -46,7 +60,6 @@ class SettingsActivity : BaseActivity() {
 
         // Handle bottom navigation
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        // Set profile as selected since Settings is part of the Profile section
         bottomNav.selectedItemId = R.id.nav_profile
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -71,39 +84,11 @@ class SettingsActivity : BaseActivity() {
                     true
                 }
                 R.id.nav_profile -> {
-                    // Already in profile section (via Settings), but if they click Profile icon,
-                    // we might want to go back to ProfileActivity or just stay here.
-                    // Usually, ProfileActivity is the parent.
                     finish()
                     true
                 }
                 else -> false
             }
         }
-    }
-
-    private fun showLanguageSelectionDialog() {
-        val languages = LanguageHelper.getSortedLanguages()
-        val languageNames = languages.map { it.getDisplayLanguage(java.util.Locale.ENGLISH) }.toTypedArray()
-
-        android.app.AlertDialog.Builder(this)
-            .setTitle("Select Language")
-            .setItems(languageNames) { _, which ->
-                val selectedLocale = languages[which]
-                val languageCode = selectedLocale.language
-
-                // Save Preference
-                SessionManager(this).saveLanguage(languageCode)
-
-                // Apply Locale immediately for this context if needed
-                LanguageHelper.setLocale(this, languageCode)
-
-                // Restart App to apply changes globally
-                val intent = Intent(this, SplashActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 }

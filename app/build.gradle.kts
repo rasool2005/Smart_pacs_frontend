@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -47,5 +48,4 @@ dependencies {
     implementation(libs.ucrop)
     implementation("com.hbb20:ccp:2.7.3")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 }

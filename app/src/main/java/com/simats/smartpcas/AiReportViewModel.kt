@@ -39,10 +39,10 @@ class AiReportViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun deleteReport(reportId: Int) {
+    fun deleteReport(userId: Int, reportId: Int) {
         viewModelScope.launch {
             _deleteReportState.value = Resource.Loading()
-            val result = repository.deleteReport(reportId)
+            val result = repository.deleteReport(userId, reportId)
             _deleteReportState.value = result
         }
     }

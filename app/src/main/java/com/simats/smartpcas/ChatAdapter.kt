@@ -1,12 +1,18 @@
 package com.simats.smartpcas
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
-class ChatAdapter(private val messages: List<ChatMessage>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatAdapter(
+    private val messages: List<ChatMessage>,
+    private val onQueryClick: (String) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TYPE_USER = 1
@@ -47,8 +53,35 @@ class ChatAdapter(private val messages: List<ChatMessage>) : RecyclerView.Adapte
 
     inner class AiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvMessage: TextView = itemView.findViewById(R.id.tvMessage)
+        
         fun bind(message: ChatMessage) {
             tvMessage.text = message.text
+            
+            // Check if there are queries to display
+            val chipGroup = itemView.findViewById<ChipGroup>(R.id.chipGroupQueries)
+            if (chipGroup != null) {
+                chipGroup.removeAllViews()
+                if (message.isQueries && message.queries != null) {
+                    chipGroup.visibility = View.VISIBLE
+                    for (query in message.queries) {
+                        val chip = Chip(itemView.context).apply {
+                            text = query
+                            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.brand_blue))
+                            chipBackgroundColor = android.content.res.ColorStateList.valueOf(
+                                androidx.core.content.ContextCompat.getColor(context, R.color.light_blue_bg)
+                            )
+                            chipStrokeColor = android.content.res.ColorStateList.valueOf(
+                                androidx.core.content.ContextCompat.getColor(context, R.color.brand_blue)
+                            )
+                            chipStrokeWidth = 2f
+                            setOnClickListener { onQueryClick(query) }
+                        }
+                        chipGroup.addView(chip)
+                    }
+                } else {
+                    chipGroup.visibility = View.GONE
+                }
+            }
         }
     }
 }

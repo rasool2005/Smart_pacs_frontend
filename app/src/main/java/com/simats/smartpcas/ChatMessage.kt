@@ -5,5 +5,8 @@ data class ChatMessage(
     val text: String,
     val isUser: Boolean,
     val timestamp: Long = System.currentTimeMillis(),
-    val isChart: Boolean = false
+    val isChart: Boolean = false,
+    val isTyping: Boolean = false,
+    val isQueries: Boolean = false,
+    val queries: List<String>? = null
 )

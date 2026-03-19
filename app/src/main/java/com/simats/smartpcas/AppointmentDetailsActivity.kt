@@ -59,18 +59,40 @@ class AppointmentDetailsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvTime).text = study.study_time
         findViewById<TextView>(R.id.tvNotes).text = if (study.note.isNullOrEmpty()) "No notes available." else study.note
 
-        // Update status card based on status
+        val sessionManager = SessionManager(this)
+        val initialStatus = sessionManager.getStudyStatus(study.id) ?: study.status
+
+        // Initialize status UI
+        val statusCard = findViewById<MaterialCardView>(R.id.statusCard)
+        updateStatusUI(initialStatus)
+
+        // Add PopupMenu to switch status manually
+        statusCard.setOnClickListener { view ->
+            val popup = android.widget.PopupMenu(this, view)
+            popup.menu.add("Pending")
+            popup.menu.add("Confirmed")
+            popup.setOnMenuItemClickListener { menuItem ->
+                val newStatus = menuItem.title.toString()
+                sessionManager.saveStudyStatus(study.id, newStatus)
+                updateStatusUI(newStatus)
+                Toast.makeText(this@AppointmentDetailsActivity, "Status marked as $newStatus", Toast.LENGTH_SHORT).show()
+                true
+            }
+            popup.show()
+        }
+    }
+
+    private fun updateStatusUI(status: String) {
         val statusCard = findViewById<MaterialCardView>(R.id.statusCard)
         val statusIcon = findViewById<ImageView>(R.id.ivStatusIcon)
         val statusLabel = findViewById<TextView>(R.id.tvStatusLabel)
         val statusSub = findViewById<TextView>(R.id.tvStatusSub)
 
-        if (study.status.lowercase() == "confirmed") {
+        if (status.lowercase() == "confirmed") {
             statusLabel.text = "Status: Confirmed"
             statusSub.text = "Patient has been notified"
-            statusCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.critical_red_light)) // Reusing light red/green if available
-            // Using direct colors if theme colors are limited
             statusCard.setCardBackgroundColor(android.graphics.Color.parseColor("#F0FDF4"))
+            statusCard.strokeColor = android.graphics.Color.parseColor("#DCFCE7")
             statusIcon.setImageResource(R.drawable.ic_check_circle)
             statusIcon.setColorFilter(android.graphics.Color.parseColor("#16A34A"))
             statusLabel.setTextColor(android.graphics.Color.parseColor("#16A34A"))
@@ -79,6 +101,7 @@ class AppointmentDetailsActivity : AppCompatActivity() {
             statusLabel.text = "Status: Pending"
             statusSub.text = "Waiting for verification"
             statusCard.setCardBackgroundColor(android.graphics.Color.parseColor("#FFFBEB"))
+            statusCard.strokeColor = android.graphics.Color.parseColor("#FEF3C7")
             statusIcon.setImageResource(R.drawable.ic_time)
             statusIcon.setColorFilter(android.graphics.Color.parseColor("#D97706"))
             statusLabel.setTextColor(android.graphics.Color.parseColor("#D97706"))

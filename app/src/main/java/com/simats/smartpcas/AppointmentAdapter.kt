@@ -36,8 +36,11 @@ class AppointmentAdapter(
         holder.tvDate.text = appointment.study_date
         holder.tvTime.text = appointment.study_time
 
+        val sessionManager = SessionManager(holder.itemView.context)
+        val currentStatus = sessionManager.getStudyStatus(appointment.id) ?: appointment.status
+
         // Dynamic status display
-        if (appointment.status.lowercase() == "confirmed") {
+        if (currentStatus.lowercase() == "confirmed") {
             holder.tvTag.text = "Confirmed"
             holder.tvTag.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.bg_e8f5e9_rounded)
             holder.tvTag.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.teal_700))

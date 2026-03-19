@@ -21,25 +21,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/ivLogoSaveetha"
-                android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:scaleType="fitCenter"
-                android:src="@drawable/logo_saveetha" />
+<!--            <ImageView-->
+<!--                android:id="@+id/ivLogoSaveetha"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:src="@drawable/logo_saveetha" />-->
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogo"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
                 android:layout_marginHorizontal="16dp"
+                app:cardBackgroundColor="#2962FF"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
                 app:strokeWidth="0dp">
@@ -48,19 +49,18 @@
                     android:id="@+id/ivLogo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#2962FF"
                     android:padding="20dp"
                     android:src="@drawable/ic_launcher_foreground"
                     app:tint="@color/white" />
             </com.google.android.material.card.MaterialCardView>
 
-            <ImageView
-                android:id="@+id/ivLogoSes"
-                android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:scaleType="fitCenter"
-                android:src="@drawable/logo_ses" />
+<!--            <ImageView-->
+<!--                android:id="@+id/ivLogoSes"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:src="@drawable/logo_ses" />-->
         </LinearLayout>
 
         <TextView

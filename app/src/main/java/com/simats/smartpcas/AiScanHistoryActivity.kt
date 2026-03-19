@@ -75,7 +75,10 @@ class AiScanHistoryActivity : AppCompatActivity() {
                     .setTitle("Delete Scan History")
                     .setMessage("Are you sure you want to permanently delete this scan?")
                     .setPositiveButton("Delete") { _, _ ->
-                        viewModel.deleteReport(selectedReport.id)
+                        val userId = sessionManager.getUserId()
+                        if (userId != -1) {
+                            viewModel.deleteReport(userId, selectedReport.id)
+                        }
                     }
                     .setNegativeButton("Cancel", null)
                     .show()

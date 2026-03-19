@@ -2,8 +2,8 @@ package com.simats.smartpcas
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Response
 import retrofit2.http.*
+import retrofit2.Response
 
 interface ApiService {
 
@@ -28,13 +28,23 @@ interface ApiService {
         @Field("note") note: String?
     ): Response<AppointmentResponse>
 
+    @FormUrlEncoded
     @POST("api/add-patient/")
     suspend fun addPatient(
-        @Body request: AddPatientRequest
+        @Field("doctor_id") doctor_id: Int,
+        @Field("patient_name") patient_name: String,
+        @Field("dob") dob: String,
+        @Field("phone_number") phone_number: String,
+        @Field("address") address: String,
+        @Field("email") email: String,
+        @Field("blood_type") blood_type: String,
+        @Field("allergies") allergies: String
     ): Response<AddPatientResponse>
 
     @GET("api/patients/")
-    suspend fun getPatients(): Response<PatientsResponse>
+    suspend fun getPatients(
+        @Query("doctor_id") doctorId: Int
+    ): Response<PatientsResponse>
 
     @DELETE("api/delete-patient/{patient_id}/")
     suspend fun deletePatient(
@@ -50,6 +60,13 @@ interface ApiService {
     @DELETE("api/delete-study/{study_id}/")
     suspend fun deleteStudy(
         @Path("study_id") studyId: Int
+    ): Response<SimpleResponse>
+
+    @FormUrlEncoded
+    @POST("api/update-study-status/")
+    suspend fun updateStudyStatus(
+        @Field("study_id") studyId: Int,
+        @Field("status") status: String
     ): Response<SimpleResponse>
 
     @FormUrlEncoded
@@ -144,4 +161,11 @@ interface ApiService {
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
     ): Response<SimpleResponse>
+
+    // AI Chat
+    @Headers("Cache-Control: no-cache")
+    @GET("api/ai-chat/")
+    suspend fun aiChat(
+        @Query("query") query: String
+    ): Response<AiChatResponse>
 }

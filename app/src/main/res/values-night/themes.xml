@@ -1,7 +1,26 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <!-- Base application theme. -->
-    <style name="Base.Theme.Smartpcas" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Theme.Smartpcas" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/brand_blue</item>
+        <item name="colorPrimaryVariant">@color/purple_gradient_end</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
+        <!-- Background and Text Colors for Day/Night -->
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+    </style>
+
+    <style name="Theme.SmartPACSViewer" parent="Theme.Smartpcas" />
+
+    <style name="RoundedImageView">
+        <item name="cornerSize">16dp</item>
     </style>
 </resources>

@@ -88,6 +88,7 @@
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchNotifications"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -140,18 +141,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Coming soon"
+                            android:text="Switch to dark theme"
                             android:textColor="@color/text_grey"
                             android:textSize="14sp" />
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchDarkMode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:checked="false"
-                        android:enabled="false" />
+                        app:thumbTint="@color/white"
+                        app:trackTint="@color/brand_blue" />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -203,64 +206,12 @@
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchDownload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:checked="false" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Language -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:strokeColor="#EEEEEE"
-                app:strokeWidth="1dp">
-
-                <RelativeLayout
-                    android:id="@+id/btnLanguage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="20dp">
-
-                    <ImageView
-                        android:id="@+id/iconLanguage"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/ic_language"
-                        app:tint="@color/text_grey" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_toEndOf="@+id/iconLanguage"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Language"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="English (US)"
-                            android:textColor="@color/text_grey"
-                            android:textSize="14sp" />
-                    </LinearLayout>
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 

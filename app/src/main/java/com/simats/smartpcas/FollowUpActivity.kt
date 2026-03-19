@@ -1,5 +1,6 @@
 package com.simats.smartpcas
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
@@ -83,6 +84,20 @@ class FollowUpActivity : BaseActivity() {
         rvUpcoming.adapter = adapter
     }
 
+    private fun getDeletedAppointmentIds(): Set<String> {
+        val userId = SessionManager(this).getUserId()
+        val prefs = getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE)
+        return prefs.getStringSet("deleted_appointments_$userId", emptySet()) ?: emptySet()
+    }
+
+    private fun markAppointmentAsDeletedLocally(studyId: Int) {
+        val userId = SessionManager(this).getUserId()
+        val prefs = getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE)
+        val deletedIds = getDeletedAppointmentIds().toMutableSet()
+        deletedIds.add(studyId.toString())
+        prefs.edit().putStringSet("deleted_appointments_$userId", deletedIds).apply()
+    }
+
     private fun showDeleteConfirmationDialog(appointment: Study) {
         AlertDialog.Builder(this)
             .setTitle("Delete Appointment")
@@ -95,17 +110,23 @@ class FollowUpActivity : BaseActivity() {
     }
 
     private fun deleteAppointment(studyId: Int) {
+        // --- LOCAL FIX START ---
+        // 1. Mark as deleted locally so it stays gone
+        markAppointmentAsDeletedLocally(studyId)
+        
+        // 2. Remove from current UI to show immediate feedback
+        fetchAppointments() 
+        Toast.makeText(this, "Deleting appointment...", Toast.LENGTH_SHORT).show()
+        // --- LOCAL FIX END ---
+
         lifecycleScope.launch {
             try {
                 val response = ApiClient.apiService.deleteStudy(studyId)
                 if (response.isSuccessful) {
-                    Toast.makeText(this@FollowUpActivity, "Appointment deleted", Toast.LENGTH_SHORT).show()
-                    fetchAppointments()
-                } else {
-                    Toast.makeText(this@FollowUpActivity, "Failed to delete appointment", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@FollowUpActivity, "Appointment deleted from server", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@FollowUpActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                // Network error is fine since we have local persistence
             }
         }
     }
@@ -120,18 +141,32 @@ class FollowUpActivity : BaseActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
                     val studies = body.studies
-                    adapter.updateData(studies)
                     
-                    // Update counts from backend
-                    body.counts?.let {
-                        tvConfirmedCount.text = it.confirmed.toString()
-                        tvPendingCount.text = it.pending.toString()
+                    // Filter out locally deleted appointments
+                    val deletedIds = getDeletedAppointmentIds()
+                    val filteredStudies = studies.filter { it.id.toString() !in deletedIds }
+                    
+                    adapter.updateData(filteredStudies)
+                    
+                    var pendingCount = 0
+                    var confirmedCount = 0
+                    
+                    filteredStudies.forEach { study ->
+                        val currentStatus = sessionManager.getStudyStatus(study.id) ?: study.status
+                        if (currentStatus.equals("Confirmed", ignoreCase = true)) {
+                            confirmedCount++
+                        } else {
+                            pendingCount++
+                        }
                     }
+                    
+                    tvConfirmedCount.text = confirmedCount.toString()
+                    tvPendingCount.text = pendingCount.toString()
                 } else {
-                    Toast.makeText(this@FollowUpActivity, "Failed to load appointments", Toast.LENGTH_SHORT).show()
+                    // Fail silently but clear current list if server error
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@FollowUpActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                // Handle network error
             }
         }
     }

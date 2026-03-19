@@ -56,6 +56,16 @@ class RegisterActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
+            val hasUppercase = password.any { it.isUpperCase() }
+            val hasLowercase = password.any { it.isLowerCase() }
+            val hasDigit = password.any { it.isDigit() }
+            val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+
+            if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+                Toast.makeText(this@RegisterActivity, "Invalid password. Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             if (password != confirmPassword) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener

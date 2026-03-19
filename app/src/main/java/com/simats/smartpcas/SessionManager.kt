@@ -3,7 +3,7 @@ package com.simats.smartpcas
 import android.content.Context
 import android.content.SharedPreferences
 
-class SessionManager(context: Context) {
+class SessionManager(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     private val editor: SharedPreferences.Editor = prefs.edit()
@@ -17,6 +17,7 @@ class SessionManager(context: Context) {
         const val KEY_USER_PASSWORD = "userPassword"
         const val KEY_HAS_SEEN_ONBOARDING = "hasSeenOnboarding"
         const val KEY_LANGUAGE = "language"
+        const val KEY_DARK_MODE = "dark_mode"
     }
 
     fun saveLoginState(isLoggedIn: Boolean) {
@@ -84,8 +85,41 @@ class SessionManager(context: Context) {
         return prefs.getString(KEY_LANGUAGE, "en") ?: "en"
     }
 
+    fun setDarkMode(isEnabled: Boolean) {
+        editor.putBoolean(KEY_DARK_MODE, isEnabled)
+        editor.apply()
+    }
+
+    fun isDarkMode(): Boolean {
+        return prefs.getBoolean(KEY_DARK_MODE, false)
+    }
+    
+    fun saveStudyStatus(studyId: Int, status: String) {
+        editor.putString("study_status_$studyId", status)
+        editor.apply()
+    }
+    
+    fun getStudyStatus(studyId: Int): String? {
+        return prefs.getString("study_status_$studyId", null)
+    }
+
     fun logout() {
+        // Clear session prefs
         editor.clear()
         editor.apply()
+        
+        // Clear other related prefs to ensure fresh state for new users
+        context.getSharedPreferences("ai_reports_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences("patient_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences("doctor_isolation_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences("study_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        
+        // Clear any other app-specific caches if they exist
+        try {
+            context.cacheDir.deleteRecursively()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
