@@ -117,7 +117,12 @@ class PatientDetailsActivity : AppCompatActivity() {
                     .setTitle("Delete Scan")
                     .setMessage("Are you sure you want to delete this scan?")
                     .setPositiveButton("Delete") { _, _ ->
-                        viewModel.deleteReport(selectedReport.id)
+                        val userId = sessionManager.getUserId()
+                        if (userId != -1) {
+                            viewModel.deleteReport(userId, selectedReport.id)
+                        } else {
+                            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
+                        }
                     }
                     .setNegativeButton("Cancel", null)
                     .show()

@@ -22,5 +22,8 @@ data class Study(
     val study_time: String,
     val status: String,
     val note: String?,
-    val created_at: String
+    val created_at: String,
+    val image_uri: String? = null,
+    val is_ai: Boolean = false,
+    val ai_report: AiReport? = null
 ) : Serializable

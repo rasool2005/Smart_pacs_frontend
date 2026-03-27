@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
@@ -57,22 +58,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="MRN-12345 • 45Y • M"
             android:textColor="@color/text_grey"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvPatientStatus" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPatientStatus"
+            tools:text="MRN-12345 • 45Y • M" />
 
         <TextView
             android:id="@+id/tvLastVisit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Last visit: Jan 20, 2026"
             android:textColor="@color/text_grey"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvPatientMeta" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPatientMeta"
+            tools:text="Last visit: Jan 20, 2026" />
 
         <TextView
             android:id="@+id/btnViewDetails"

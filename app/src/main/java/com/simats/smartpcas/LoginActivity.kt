@@ -12,6 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity() {
+    private var selectedHospitalId: String? = null
+    private var selectedHospitalName: String? = null
+    private lateinit var sessionManager: SessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -21,6 +25,24 @@ class LoginActivity : BaseActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        sessionManager = SessionManager(this)
+        selectedHospitalId = intent.getStringExtra("hospital_id")
+        selectedHospitalName = intent.getStringExtra("hospital_name")
+
+        // If not passed via intent, check session manager
+        if (selectedHospitalId == null) {
+            selectedHospitalId = sessionManager.getSelectedHospitalId()
+            selectedHospitalName = sessionManager.getSelectedHospitalName()
+        } else {
+            // Save if it was passed via intent
+            sessionManager.saveSelectedHospital(selectedHospitalId!!, selectedHospitalName ?: "Hospital")
+        }
+
+        val tvSubtitle = findViewById<android.widget.TextView>(R.id.tvSubtitle)
+        selectedHospitalName?.let {
+            tvSubtitle.text = "Login for $it"
         }
 
         val etEmail = checkNotNull(findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etEmail)) {
@@ -38,7 +60,26 @@ class LoginActivity : BaseActivity() {
             val password = etPassword.text?.toString()?.trim() ?: ""
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                loginUser(email, password)
+                val hasUppercase = password.any { it.isUpperCase() }
+                val hasLowercase = password.any { it.isLowerCase() }
+                val hasDigit = password.any { it.isDigit() }
+                val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+
+                if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+                    Toast.makeText(this@LoginActivity, "Invalid password. Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.", Toast.LENGTH_LONG).show()
+                } else {
+                    // Force logout/clear of previous session data before new login
+                    sessionManager.logout()
+                    
+                    // Restore selected hospital after logout clears it
+                    selectedHospitalId?.let { id ->
+                        selectedHospitalName?.let { name ->
+                            sessionManager.saveSelectedHospital(id, name)
+                        }
+                    }
+                    
+                    loginUser(email, password)
+                }
             } else {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
             }
@@ -55,7 +96,10 @@ class LoginActivity : BaseActivity() {
             "tvSignUp is missing in activity_login.xml"
         }
         tvSignUp.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            val intent = Intent(this, RegisterActivity::class.java)
+            intent.putExtra("hospital_id", selectedHospitalId)
+            intent.putExtra("hospital_name", selectedHospitalName)
+            startActivity(intent)
         }
     }
 
@@ -66,7 +110,13 @@ class LoginActivity : BaseActivity() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse?.status == "success" && loginResponse.user != null) {
-                        val sessionManager = SessionManager(this@LoginActivity)
+                        
+                        // HOSPITAL VALIDATION
+                        if (selectedHospitalId != null && loginResponse.user.hospital_id != selectedHospitalId) {
+                            Toast.makeText(this@LoginActivity, "This account is not registered for ${selectedHospitalName ?: "this hospital"}. Please select the correct hospital.", Toast.LENGTH_LONG).show()
+                            return@launch
+                        }
+
                         sessionManager.saveLoginState(true)
                         sessionManager.saveCredentials(email, password)
                         

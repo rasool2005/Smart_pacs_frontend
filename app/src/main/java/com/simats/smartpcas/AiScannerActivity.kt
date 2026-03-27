@@ -122,42 +122,30 @@ class AiScannerActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                // ✅ Use the central ApiClient that points to http://192.168.137.134:8000/api/predict/
                 val response = ApiClient.apiService.predictImage(body, scanTypeBody)
 
                 if (response.isSuccessful && response.body() != null) {
                     val prediction = response.body()!!
-
                     val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
                     intent.putExtra("image_uri", internalUri.toString())
                     intent.putExtra("prediction_results", prediction)
                     intent.putExtra("scan_type", selectedScanType)
-                    val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
-                    if (pName != null) {
-                        intent.putExtra("PATIENT_NAME", pName)
-                    }
+                    intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
                     startActivity(intent)
                 } else {
                     // Pass internal URI and scan type to AiResultsActivity even on failure
                     val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
                     intent.putExtra("image_uri", internalUri.toString())
                     intent.putExtra("scan_type", selectedScanType)
-                    val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
-                    if (pName != null) {
-                        intent.putExtra("PATIENT_NAME", pName)
-                    }
+                    intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
                     startActivity(intent)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                // Pass internal URI and scan type to AiResultsActivity on connection error
+                // Connection error fallback
                 val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
                 intent.putExtra("image_uri", internalUri.toString())
                 intent.putExtra("scan_type", selectedScanType)
-                val pName = this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME")
-                if (pName != null) {
-                    intent.putExtra("PATIENT_NAME", pName)
-                }
+                intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
                 startActivity(intent)
             }
         }

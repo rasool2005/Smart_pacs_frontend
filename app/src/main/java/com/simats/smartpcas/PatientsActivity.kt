@@ -48,6 +48,11 @@ class PatientsActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupSearch()
+        
+        // Ensure UI starts clean
+        fullPatientList = emptyList()
+        adapter.updateData(emptyList())
+        
         fetchPatients()
         setupClickListeners()
         updateBottomNavSelection()
@@ -78,21 +83,44 @@ class PatientsActivity : AppCompatActivity() {
             .show()
     }
 
+
+    private fun getDeletedPatientIds(): Set<String> {
+        val userId = SessionManager(this).getUserId()
+        val prefs = getSharedPreferences("doctor_isolation_prefs", Context.MODE_PRIVATE)
+        return prefs.getStringSet("deleted_patients_$userId", emptySet()) ?: emptySet()
+    }
+
+    private fun markPatientAsDeletedLocally(patientId: Int) {
+        val userId = SessionManager(this).getUserId()
+        val prefs = getSharedPreferences("doctor_isolation_prefs", Context.MODE_PRIVATE)
+        val deletedIds = getDeletedPatientIds().toMutableSet()
+        deletedIds.add(patientId.toString())
+        prefs.edit().putStringSet("deleted_patients_$userId", deletedIds).apply()
+    }
+
     private fun deletePatient(patient: Patient) {
-        progressBar.visibility = View.VISIBLE
+        // Optimistic UI: Remove from current UI list
+        fullPatientList = fullPatientList.filter { it.patient_id != patient.patient_id }
+        filterPatients(findViewById<EditText>(R.id.etSearchPatients).text.toString())
+        
         lifecycleScope.launch {
             try {
+                // background attempt to delete from server
                 val response = ApiClient.apiService.deletePatient(patient.patient_id)
-                progressBar.visibility = View.GONE
+                
                 if (response.isSuccessful) {
-                    Toast.makeText(this@PatientsActivity, "Patient deleted successfully", Toast.LENGTH_SHORT).show()
-                    fetchPatients() // Refresh the list
+                    // Permanently mark as deleted in local storage to prevent reappearing if server cache is slow
+                    markPatientAsDeletedLocally(patient.patient_id)
+                    Toast.makeText(this@PatientsActivity, "Patient deleted from database successfully", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@PatientsActivity, "Failed to delete patient", Toast.LENGTH_SHORT).show()
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                    Toast.makeText(this@PatientsActivity, "Failed to delete: $errorMsg", Toast.LENGTH_LONG).show()
+                    // Optionally refresh list if failed
+                    fetchPatients()
                 }
             } catch (e: Exception) {
-                progressBar.visibility = View.GONE
-                Toast.makeText(this@PatientsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@PatientsActivity, "Network error while deleting: ${e.message}", Toast.LENGTH_SHORT).show()
+                fetchPatients()
             }
         }
     }
@@ -149,28 +177,59 @@ class PatientsActivity : AppCompatActivity() {
     }
 
     private fun fetchPatients() {
+        val sessionManager = SessionManager(this)
+        val userId = sessionManager.getUserId()
+        
+        if (userId == -1) {
+            updateUiWithEmptyState()
+            return
+        }
+
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
-                val response = ApiClient.apiService.getPatients()
+                // Fetch ONLY for this specific doctor account
+                val response = ApiClient.apiService.getPatients(userId)
                 progressBar.visibility = View.GONE
+                
                 if (response.isSuccessful && response.body() != null) {
                     val patientsResponse = response.body()!!
                     if (patientsResponse.status == "success") {
-                        fullPatientList = patientsResponse.patients
-                        val etSearchPatients = findViewById<EditText>(R.id.etSearchPatients)
-                        filterPatients(etSearchPatients.text.toString())
+                        val newPatients = patientsResponse.patients ?: emptyList()
+                        
+                        // Show all patients returned by the server (server already filters by userId)
+                        val deletedIds = getDeletedPatientIds()
+                        
+                        fullPatientList = newPatients.filter { 
+                            it.patient_id.toString() !in deletedIds 
+                        }
+                        
+                        if (fullPatientList.isEmpty()) {
+                            updateUiWithEmptyState()
+                        } else {
+                            findViewById<View>(R.id.llEmptyState).visibility = View.GONE
+                            recyclerView.visibility = View.VISIBLE
+                            val etSearchPatients = findViewById<EditText>(R.id.etSearchPatients)
+                            filterPatients(etSearchPatients.text.toString())
+                        }
                     } else {
-                        adapter.updateData(emptyList())
+                        updateUiWithEmptyState()
                     }
                 } else {
-                    Toast.makeText(this@PatientsActivity, "Failed to fetch patients", Toast.LENGTH_SHORT).show()
+                    updateUiWithEmptyState()
                 }
             } catch (e: Exception) {
                 progressBar.visibility = View.GONE
-                Toast.makeText(this@PatientsActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                updateUiWithEmptyState()
             }
         }
+    }
+
+    private fun updateUiWithEmptyState() {
+        fullPatientList = emptyList()
+        adapter.updateData(emptyList())
+        findViewById<View>(R.id.llEmptyState).visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
     }
 
     private fun setupSearch() {
@@ -191,8 +250,16 @@ class PatientsActivity : AppCompatActivity() {
     }
 
     private fun filterPatients(query: String) {
+        val llEmptyState = findViewById<View>(R.id.llEmptyState)
         if (query.isEmpty()) {
             adapter.updateData(fullPatientList)
+            if (fullPatientList.isEmpty()) {
+                llEmptyState.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            } else {
+                llEmptyState.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
             return
         }
         val lowerCaseQuery = query.lowercase()
@@ -201,6 +268,14 @@ class PatientsActivity : AppCompatActivity() {
             (it.patient_id.toString()).lowercase().contains(lowerCaseQuery)
         }
         adapter.updateData(filteredList)
+        
+        if (filteredList.isEmpty()) {
+            llEmptyState.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        } else {
+            llEmptyState.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+        }
     }
 
     private fun openDetails(patient: Patient) {

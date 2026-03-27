@@ -31,6 +31,20 @@ class RegisterActivity : BaseActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etHospitalId = findViewById<EditText>(R.id.etHospitalId)
         val etPassword = findViewById<EditText>(R.id.etPassword)
+
+        val hospitalId = intent.getStringExtra("hospital_id")
+        val hospitalName = intent.getStringExtra("hospital_name")
+        
+        hospitalId?.let {
+            etHospitalId.setText(it)
+            etHospitalId.isEnabled = false // Disable it so they can't change it if they came from selection
+        }
+
+        val tvSubtitle = findViewById<TextView>(R.id.tvSubtitle)
+        hospitalName?.let {
+            tvSubtitle.text = "Join $it"
+        }
+
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
 
         // Back button logic
@@ -53,6 +67,16 @@ class RegisterActivity : BaseActivity() {
 
             if (name.isEmpty() || email.isEmpty() || hospitalId.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val hasUppercase = password.any { it.isUpperCase() }
+            val hasLowercase = password.any { it.isLowerCase() }
+            val hasDigit = password.any { it.isDigit() }
+            val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+
+            if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+                Toast.makeText(this@RegisterActivity, "Invalid password. Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 

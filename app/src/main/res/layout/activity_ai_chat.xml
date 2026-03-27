@@ -6,8 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
-    android:clipChildren="false"
-    android:clipToPadding="false"
     tools:context=".AiChatActivity">
 
     <!-- Header Section -->
@@ -16,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_blue_header"
+        android:elevation="12dp"
         android:paddingBottom="20dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -86,6 +85,24 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Suggestions Chip Group -->
+    <HorizontalScrollView
+        android:id="@+id/suggestionScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F8F9FA"
+        android:scrollbars="none"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/inputContainer">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSuggestions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            app:singleLine="true" />
+    </HorizontalScrollView>
+
     <!-- Professional Floating Input Area (ANCHORED TO SCREEN BOTTOM) -->
     <LinearLayout
         android:id="@+id/inputContainer"
@@ -154,7 +171,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/inputContainer"
+        app:layout_constraintBottom_toTopOf="@+id/suggestionScroll"
         app:layout_constraintTop_toBottomOf="@+id/header" />
 
     <!-- Included Nav Bar (Hidden to prevent overlaps but present to avoid code crashes) -->

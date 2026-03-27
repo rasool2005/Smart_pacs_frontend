@@ -37,11 +37,17 @@ data class SendEmailRequest(
 
 data class SimpleResponse(
     val status: String,
-    val message: String?
+    val message: String?,
+    val report_id: Int? = null
 )
 
 data class AiReportsResponse(
     val status: String,
     val count: Int?,
     val reports: List<AiReport>?
+)
+
+data class AiChatResponse(
+    val status: String,
+    val response: String
 )

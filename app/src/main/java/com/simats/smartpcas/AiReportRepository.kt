@@ -13,23 +13,23 @@ class AiReportRepository(private val context: Context? = null) {
     private val gson = Gson()
     private val sharedPrefs = context?.getSharedPreferences("ai_reports_prefs", Context.MODE_PRIVATE)
 
-    private fun getLocalReports(): MutableList<AiReport> {
-        val json = sharedPrefs?.getString("local_reports", null) ?: return mutableListOf()
+    private fun getLocalReports(userId: Int): MutableList<AiReport> {
+        val json = sharedPrefs?.getString("local_reports_$userId", null) ?: return mutableListOf()
         val type = object : TypeToken<MutableList<AiReport>>() {}.type
         return gson.fromJson(json, type)
     }
 
-    private fun saveLocalReports(reports: List<AiReport>) {
-        sharedPrefs?.edit()?.putString("local_reports", gson.toJson(reports))?.apply()
+    private fun saveLocalReports(userId: Int, reports: List<AiReport>) {
+        sharedPrefs?.edit()?.putString("local_reports_$userId", gson.toJson(reports))?.apply()
     }
 
-    private fun getDeletedIds(): MutableSet<Int> {
-        val set = sharedPrefs?.getStringSet("deleted_report_ids", emptySet()) ?: emptySet()
+    private fun getDeletedIds(userId: Int): MutableSet<Int> {
+        val set = sharedPrefs?.getStringSet("deleted_report_ids_$userId", emptySet()) ?: emptySet()
         return set.map { it.toInt() }.toMutableSet()
     }
 
-    private fun saveDeletedIds(ids: Set<Int>) {
-        sharedPrefs?.edit()?.putStringSet("deleted_report_ids", ids.map { it.toString() }.toSet())?.apply()
+    private fun saveDeletedIds(userId: Int, ids: Set<Int>) {
+        sharedPrefs?.edit()?.putStringSet("deleted_report_ids_$userId", ids.map { it.toString() }.toSet())?.apply()
     }
 
     suspend fun saveReport(request: SaveReportRequest): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
@@ -49,35 +49,48 @@ class AiReportRepository(private val context: Context? = null) {
             image_uri = request.image_uri
         )
         
-        val localReports = getLocalReports()
+        val localReports = getLocalReports(request.user_id)
         localReports.add(0, newLocalReport)
-        saveLocalReports(localReports)
+        saveLocalReports(request.user_id, localReports)
 
         try {
             val response = ApiClient.apiService.saveAiReport(request)
-            safeApiCall(response)
+            if (response.isSuccessful && response.body() != null) {
+                val serverResponse = response.body()!!
+                if (serverResponse.report_id != null) {
+                    // Update local version with the backend-assigned ID
+                    val currentLocal = getLocalReports(request.user_id)
+                    val idx = currentLocal.indexOfFirst { it.id == newLocalReport.id }
+                    if (idx != -1) {
+                        currentLocal[idx] = currentLocal[idx].copy(id = serverResponse.report_id)
+                        saveLocalReports(request.user_id, currentLocal)
+                    }
+                }
+                Resource.Success(serverResponse)
+            } else {
+                Resource.Error("Server error: ${response.code()}")
+            }
         } catch (e: Exception) {
             Resource.Success(SimpleResponse("local_success", "Saved locally"))
         }
     }
 
     suspend fun getReports(userId: Int): Resource<List<AiReport>> = withContext(Dispatchers.IO) {
-        val localReports = getLocalReports()
-        val deletedIds = getDeletedIds()
+        val localReports = getLocalReports(userId)
+        val deletedIds = getDeletedIds(userId)
 
         try {
             val response = ApiClient.apiService.getAiReports(userId)
             val backendReports = if (response.isSuccessful && response.body() != null) {
                 val reports = response.body()!!.reports ?: emptyList()
-                // Ensure image_uri is preserved or synced if needed. 
-                // For now, we trust the backend data but prioritize local image_uri if it exists
                 reports
             } else {
                 emptyList()
             }
 
             // Sync: If a report exists in both, prefer the local one (which has the image_uri)
-            val combined = (localReports + backendReports)
+            val filteredLocalReports = localReports.filter { it.user_id == userId }
+            val combined = (filteredLocalReports + backendReports)
                 .distinctBy { it.id }
                 .filter { !deletedIds.contains(it.id) }
                 .map { report ->
@@ -94,19 +107,19 @@ class AiReportRepository(private val context: Context? = null) {
             
             Resource.Success(combined)
         } catch (e: Exception) {
-            val filteredLocal = localReports.filter { !deletedIds.contains(it.id) }
+            val filteredLocal = localReports.filter { it.user_id == userId && !deletedIds.contains(it.id) }
             Resource.Success(filteredLocal)
         }
     }
 
-    suspend fun deleteReport(reportId: Int): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
-        val deletedIds = getDeletedIds()
+    suspend fun deleteReport(userId: Int, reportId: Int): Resource<SimpleResponse> = withContext(Dispatchers.IO) {
+        val deletedIds = getDeletedIds(userId)
         deletedIds.add(reportId)
-        saveDeletedIds(deletedIds)
+        saveDeletedIds(userId, deletedIds)
 
-        val localReports = getLocalReports()
+        val localReports = getLocalReports(userId)
         localReports.removeAll { it.id == reportId }
-        saveLocalReports(localReports)
+        saveLocalReports(userId, localReports)
 
         try {
             ApiClient.apiService.deleteReport(reportId)

@@ -1,5 +1,6 @@
 package com.simats.smartpcas
 
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 data class PredictionResponse(
@@ -13,6 +14,7 @@ data class PredictionResponse(
 ) : Serializable
 
 data class AiFinding(
+    @SerializedName(value = "condition", alternate = ["title"])
     val title: String,
     val location: String,
     val description: String,

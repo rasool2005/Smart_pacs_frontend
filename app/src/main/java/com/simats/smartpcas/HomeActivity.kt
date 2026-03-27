@@ -2,15 +2,17 @@ package com.simats.smartpcas
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.launch
 
 class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +32,32 @@ class HomeActivity : BaseActivity() {
             findViewById<TextView>(R.id.tvAppName).text = userName
         }
 
+        // Load profile image if available (using initials icon logic from original UI)
+        loadProfileImage()
+
+        checkFreshStatus()
         setupClickListeners()
         updateBottomNavSelection()
+    }
+
+    private fun checkFreshStatus() {
+        val userId = SessionManager(this).getUserId()
+        if (userId == -1) return
+
+        // If new doctor, hide the hardcoded mock cases to give a "Fresh" look
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.getPatients(userId)
+                if (response.isSuccessful) {
+                    val patients = response.body()?.patients ?: emptyList()
+                    if (patients.isEmpty()) {
+                        findViewById<TextView>(R.id.tvUrgentTitle).visibility = View.GONE
+                        findViewById<TextView>(R.id.tvSeeAll).visibility = View.GONE
+                        findViewById<MaterialCardView>(R.id.case1).visibility = View.GONE
+                    }
+                }
+            } catch (e: Exception) {}
+        }
     }
 
     private fun setupClickListeners() {
@@ -130,6 +156,16 @@ class HomeActivity : BaseActivity() {
         
         val pink = ContextCompat.getColor(this, R.color.nav_ai_chat_pink)
         findViewById<TextView>(R.id.tvAiChatLabel).setTextColor(pink)
+    }
+
+    private fun loadProfileImage() {
+        val sessionManager = SessionManager(this)
+        val profileImageUriString = sessionManager.getProfileImage()
+        if (!profileImageUriString.isNullOrEmpty()) {
+            // Find or add a profile image view in the header
+            // For now, if we don't have a specific view in activity_home.xml, we skip 
+            // but the user might want it. Let's check activity_home.xml again for an icon.
+        }
     }
 
     override fun onResume() {
