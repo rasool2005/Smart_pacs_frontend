@@ -36,6 +36,8 @@ class HospitalSelectionActivity : BaseActivity() {
 
         val adapter = HospitalAdapter(hospitals) { hospital ->
             val intent = Intent(this, LoginActivity::class.java)
+            intent.putExtra("hospital_id", hospital.id)
+            intent.putExtra("hospital_name", hospital.name)
             startActivity(intent)
         }
         rvHospitals.adapter = adapter

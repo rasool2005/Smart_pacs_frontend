@@ -31,6 +31,20 @@ class RegisterActivity : BaseActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etHospitalId = findViewById<EditText>(R.id.etHospitalId)
         val etPassword = findViewById<EditText>(R.id.etPassword)
+
+        val hospitalId = intent.getStringExtra("hospital_id")
+        val hospitalName = intent.getStringExtra("hospital_name")
+        
+        hospitalId?.let {
+            etHospitalId.setText(it)
+            etHospitalId.isEnabled = false // Disable it so they can't change it if they came from selection
+        }
+
+        val tvSubtitle = findViewById<TextView>(R.id.tvSubtitle)
+        hospitalName?.let {
+            tvSubtitle.text = "Join $it"
+        }
+
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
 
         // Back button logic

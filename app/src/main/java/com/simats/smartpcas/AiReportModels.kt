@@ -37,7 +37,8 @@ data class SendEmailRequest(
 
 data class SimpleResponse(
     val status: String,
-    val message: String?
+    val message: String?,
+    val report_id: Int? = null
 )
 
 data class AiReportsResponse(

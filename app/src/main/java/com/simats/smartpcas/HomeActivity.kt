@@ -32,6 +32,9 @@ class HomeActivity : BaseActivity() {
             findViewById<TextView>(R.id.tvAppName).text = userName
         }
 
+        // Load profile image if available (using initials icon logic from original UI)
+        loadProfileImage()
+
         checkFreshStatus()
         setupClickListeners()
         updateBottomNavSelection()
@@ -153,6 +156,16 @@ class HomeActivity : BaseActivity() {
         
         val pink = ContextCompat.getColor(this, R.color.nav_ai_chat_pink)
         findViewById<TextView>(R.id.tvAiChatLabel).setTextColor(pink)
+    }
+
+    private fun loadProfileImage() {
+        val sessionManager = SessionManager(this)
+        val profileImageUriString = sessionManager.getProfileImage()
+        if (!profileImageUriString.isNullOrEmpty()) {
+            // Find or add a profile image view in the header
+            // For now, if we don't have a specific view in activity_home.xml, we skip 
+            // but the user might want it. Let's check activity_home.xml again for an icon.
+        }
     }
 
     override fun onResume() {

@@ -32,7 +32,7 @@ class ReportDetailActivity : AppCompatActivity() {
     private var report: AiReport? = null
 
     private lateinit var progressBar: ProgressBar
-    private lateinit var btnDownloadPdf: MaterialButton
+    private lateinit var btnCancel: MaterialButton
     private lateinit var btnEmailReport: MaterialButton
     private lateinit var etPatientEmail: TextInputEditText
 
@@ -63,8 +63,8 @@ class ReportDetailActivity : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
-        btnDownloadPdf.setOnClickListener {
-            viewModel.downloadReportPdf(report!!.id)
+        btnCancel.setOnClickListener {
+            finish()
         }
 
         btnEmailReport.setOnClickListener {
@@ -80,7 +80,7 @@ class ReportDetailActivity : AppCompatActivity() {
 
     private fun initViews() {
         progressBar = findViewById(R.id.progressBar)
-        btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
+        btnCancel = findViewById(R.id.btnCancel)
         btnEmailReport = findViewById(R.id.btnEmailReport)
         etPatientEmail = findViewById(R.id.etPatientEmail)
     }
@@ -131,29 +131,6 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        lifecycleScope.launch {
-            viewModel.downloadState.collect { resource ->
-                when (resource) {
-                    is Resource.Loading -> {
-                        progressBar.visibility = View.VISIBLE
-                        btnDownloadPdf.isEnabled = false
-                    }
-                    is Resource.Success -> {
-                        progressBar.visibility = View.GONE
-                        btnDownloadPdf.isEnabled = true
-                        savePdfToDownloads(resource.data)
-                        viewModel.resetDownloadState()
-                    }
-                    is Resource.Error -> {
-                        progressBar.visibility = View.GONE
-                        btnDownloadPdf.isEnabled = true
-                        Toast.makeText(this@ReportDetailActivity, resource.message, Toast.LENGTH_LONG).show()
-                        viewModel.resetDownloadState()
-                    }
-                    else -> {}
-                }
-            }
-        }
 
         lifecycleScope.launch {
             viewModel.sendEmailState.collect { resource ->

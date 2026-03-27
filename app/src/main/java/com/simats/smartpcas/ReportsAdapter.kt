@@ -56,11 +56,17 @@ class ReportsAdapter(
         fun bind(report: AiReport) {
             // ✅ Extract Patient Name from Impression if present
             val imp = report.impression ?: ""
-            val patientName = if (imp.startsWith("[Patient: ")) {
+            var patientName = if (imp.startsWith("[Patient: ")) {
                 imp.substringAfter("[Patient: ").substringBefore("]")
             } else {
                 "Unknown Patient"
             }
+            
+            // Handle if the extracted name is literally "null" or blank
+            if (patientName == "null" || patientName.isBlank()) {
+                patientName = "Unknown Patient"
+            }
+            
             tvPatientName.text = patientName
 
             val examType = report.examination_type ?: "AI"

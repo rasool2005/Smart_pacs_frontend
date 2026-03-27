@@ -55,7 +55,21 @@ class AiReportRepository(private val context: Context? = null) {
 
         try {
             val response = ApiClient.apiService.saveAiReport(request)
-            safeApiCall(response)
+            if (response.isSuccessful && response.body() != null) {
+                val serverResponse = response.body()!!
+                if (serverResponse.report_id != null) {
+                    // Update local version with the backend-assigned ID
+                    val currentLocal = getLocalReports(request.user_id)
+                    val idx = currentLocal.indexOfFirst { it.id == newLocalReport.id }
+                    if (idx != -1) {
+                        currentLocal[idx] = currentLocal[idx].copy(id = serverResponse.report_id)
+                        saveLocalReports(request.user_id, currentLocal)
+                    }
+                }
+                Resource.Success(serverResponse)
+            } else {
+                Resource.Error("Server error: ${response.code()}")
+            }
         } catch (e: Exception) {
             Resource.Success(SimpleResponse("local_success", "Saved locally"))
         }

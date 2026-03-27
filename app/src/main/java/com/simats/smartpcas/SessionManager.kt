@@ -18,6 +18,9 @@ class SessionManager(private val context: Context) {
         const val KEY_HAS_SEEN_ONBOARDING = "hasSeenOnboarding"
         const val KEY_LANGUAGE = "language"
         const val KEY_DARK_MODE = "dark_mode"
+        const val KEY_USER_PROFILE_IMAGE = "userProfileImage"
+        const val KEY_SELECTED_HOSPITAL_ID = "selectedHospitalId"
+        const val KEY_SELECTED_HOSPITAL_NAME = "selectedHospitalName"
     }
 
     fun saveLoginState(isLoggedIn: Boolean) {
@@ -101,6 +104,29 @@ class SessionManager(private val context: Context) {
     
     fun getStudyStatus(studyId: Int): String? {
         return prefs.getString("study_status_$studyId", null)
+    }
+
+    fun saveProfileImage(uri: String) {
+        editor.putString(KEY_USER_PROFILE_IMAGE, uri)
+        editor.apply()
+    }
+
+    fun getProfileImage(): String? {
+        return prefs.getString(KEY_USER_PROFILE_IMAGE, null)
+    }
+
+    fun saveSelectedHospital(hospitalId: String, hospitalName: String) {
+        editor.putString(KEY_SELECTED_HOSPITAL_ID, hospitalId)
+        editor.putString(KEY_SELECTED_HOSPITAL_NAME, hospitalName)
+        editor.apply()
+    }
+
+    fun getSelectedHospitalId(): String? {
+        return prefs.getString(KEY_SELECTED_HOSPITAL_ID, null)
+    }
+
+    fun getSelectedHospitalName(): String? {
+        return prefs.getString(KEY_SELECTED_HOSPITAL_NAME, null)
     }
 
     fun logout() {

@@ -290,6 +290,8 @@
                         android:background="@drawable/bg_light_grey_rounded"
                         android:paddingHorizontal="12dp"
                         android:hint="YYYY-MM-DD"
+                        android:focusable="false"
+                        android:clickable="true"
                         android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

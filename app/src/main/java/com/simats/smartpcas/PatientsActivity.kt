@@ -99,18 +99,29 @@ class PatientsActivity : AppCompatActivity() {
     }
 
     private fun deletePatient(patient: Patient) {
-        // Mark as deleted in local storage
-        markPatientAsDeletedLocally(patient.patient_id)
-        
-        // Remove from current UI list
+        // Optimistic UI: Remove from current UI list
         fullPatientList = fullPatientList.filter { it.patient_id != patient.patient_id }
         filterPatients(findViewById<EditText>(R.id.etSearchPatients).text.toString())
         
         lifecycleScope.launch {
             try {
-                // Background attempt to delete from server
-                ApiClient.apiService.deletePatient(patient.patient_id)
-            } catch (e: Exception) {}
+                // background attempt to delete from server
+                val response = ApiClient.apiService.deletePatient(patient.patient_id)
+                
+                if (response.isSuccessful) {
+                    // Permanently mark as deleted in local storage to prevent reappearing if server cache is slow
+                    markPatientAsDeletedLocally(patient.patient_id)
+                    Toast.makeText(this@PatientsActivity, "Patient deleted from database successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                    Toast.makeText(this@PatientsActivity, "Failed to delete: $errorMsg", Toast.LENGTH_LONG).show()
+                    // Optionally refresh list if failed
+                    fetchPatients()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@PatientsActivity, "Network error while deleting: ${e.message}", Toast.LENGTH_SHORT).show()
+                fetchPatients()
+            }
         }
     }
 

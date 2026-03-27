@@ -136,12 +136,17 @@ class ReportsListActivity : AppCompatActivity() {
                                 val pName = if (imp.startsWith("[Patient: ")) {
                                     imp.substringAfter("[Patient: ").substringBefore("]")
                                 } else {
-                                    "Legacy Report"
+                                    "Unknown Patient"
                                 }
-                                pName == targetPatientName
+                                
+                                val normalizedPName = if (pName == "null" || pName.isBlank()) "Unknown Patient" else pName
+                                normalizedPName.equals(targetPatientName, ignoreCase = true)
                             }
                         } else {
-                            reports
+                            // Deduplicate reports with same type, finding, and date to avoid phantom duplicates
+                            reports.distinctBy { 
+                                "${it.examination_type}_${it.finding_name}_${it.created_at?.substringBefore("T")}_${it.impression}"
+                            }
                         }
                         
                         if (filteredReports.isEmpty()) {

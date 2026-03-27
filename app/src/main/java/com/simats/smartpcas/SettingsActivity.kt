@@ -43,11 +43,6 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(this, DataPrivacyActivity::class.java))
         }
 
-        // Feedback
-        findViewById<android.view.View>(R.id.btnFeedback).setOnClickListener {
-            startActivity(Intent(this, FeedbackActivity::class.java))
-        }
-
         // Terms
         findViewById<android.view.View>(R.id.btnTerms).setOnClickListener {
             startActivity(Intent(this, TermsActivity::class.java))

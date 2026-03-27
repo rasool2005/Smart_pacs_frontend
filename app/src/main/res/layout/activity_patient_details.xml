@@ -78,13 +78,14 @@
     <!-- Profile Initials Circle -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvInitials"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="74dp"
+        android:layout_height="74dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="20dp"
-        app:cardCornerRadius="40dp"
-        app:cardElevation="6dp"
-        app:strokeWidth="0dp"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="37dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="3dp"
+        app:strokeColor="#FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvBreadcrumb">
         <TextView
@@ -93,8 +94,9 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="JD"
+            android:background="#E0E7FF"
             android:textColor="#1A62FF"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
     </com.google.android.material.card.MaterialCardView>
 
@@ -118,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="30dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
                 app:strokeWidth="0dp">
@@ -144,10 +146,34 @@
                         android:layout_marginTop="20dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_calendar" app:tint="#9CA3AF" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Date of Birth" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvDob" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1981-05-15" android:textColor="#1F2937" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="#9CA3AF" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Date of Birth"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvDob"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1981-05-15"
+                                android:textColor="#1F2937"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -158,10 +184,34 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_phone" app:tint="#9CA3AF" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="+1 (555) 123-4567" android:textColor="#1F2937" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_phone"
+                            app:tint="#9CA3AF" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Phone"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvPhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+1 (555) 123-4567"
+                                android:textColor="#1F2937"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -172,10 +222,34 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_email" app:tint="#9CA3AF" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="john.doe@email.com" android:textColor="#1F2937" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_email"
+                            app:tint="#9CA3AF" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Email"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvEmail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="john.doe@email.com"
+                                android:textColor="#1F2937"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -186,24 +260,72 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_home" app:tint="#9CA3AF" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Address" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvAddress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="123 Main St, New York, NY 10001" android:textColor="#1F2937" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_home"
+                            app:tint="#9CA3AF" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Address"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="123 Main St, New York, NY 10001"
+                                android:textColor="#1F2937"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
                     <!-- Item: Blood Type -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="12dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_activity" app:tint="#9CA3AF" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Blood Type" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvBloodType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="O+" android:textColor="#1F2937" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_activity"
+                            app:tint="#9CA3AF" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Blood Type"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvBloodType"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="O+"
+                                android:textColor="#1F2937"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -214,10 +336,34 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_file_text" app:tint="#EF4444" />
-                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Allergies" android:textColor="#9CA3AF" android:textSize="13sp" />
-                            <TextView android:id="@+id/tvAllergies" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Penicillin" android:textColor="#EF4444" android:textSize="15sp" android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_file_text"
+                            app:tint="#EF4444" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Allergies"
+                                android:textColor="#9CA3AF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvAllergies"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Penicillin"
+                                android:textColor="#EF4444"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -283,52 +429,64 @@
         android:background="@color/white"
         android:elevation="16dp"
         android:orientation="horizontal"
-        android:paddingTop="16dp"
-        android:paddingBottom="72dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp"
         android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSchedule"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1.2"
+            android:layout_height="62dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
             android:backgroundTint="#1A62FF"
             android:text="Schedule\nFollow-up"
             android:textAllCaps="false"
-            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:gravity="center"
+            android:lineSpacingExtra="-2dp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="14dp"
+            />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAiScanner"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
+            android:layout_height="62dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:backgroundTint="#6C5CE7"
-            android:text="AI Scanner"
+            android:text="AI\nScanner"
             android:textAllCaps="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:gravity="center"
+            android:lineSpacingExtra="-2dp"
             android:textColor="@color/white"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="14dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelSchedule"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
+            android:layout_height="62dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="0.8"
             android:text="Cancel"
             android:textAllCaps="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:textColor="#EF4444"
             android:textSize="13sp"
             android:textStyle="bold"
-            app:cornerRadius="12dp"
+            app:cornerRadius="14dp"
             app:strokeColor="#EF4444" />
     </LinearLayout>
 

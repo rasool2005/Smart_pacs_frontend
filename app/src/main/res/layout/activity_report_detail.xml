@@ -298,15 +298,16 @@
                 app:strokeColor="@color/brand_blue" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDownloadPdf"
+                android:id="@+id/btnCancel"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:backgroundTint="@color/brand_blue"
-                android:text="Download PDF"
+                android:text="Cancel"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
+                android:textColor="#EF4444"
+                app:strokeColor="#EF4444"
                 app:cornerRadius="12dp" />
 
         </LinearLayout>

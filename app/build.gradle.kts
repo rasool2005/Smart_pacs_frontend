@@ -44,6 +44,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(libs.gson)
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation(libs.ucrop)
     implementation("com.hbb20:ccp:2.7.3")

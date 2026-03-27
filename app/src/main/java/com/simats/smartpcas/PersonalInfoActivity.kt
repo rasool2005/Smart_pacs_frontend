@@ -1,5 +1,6 @@
 package com.simats.smartpcas
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -12,6 +13,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class PersonalInfoActivity : AppCompatActivity() {
 
@@ -46,6 +50,10 @@ class PersonalInfoActivity : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.btnBack).setOnClickListener {
             finish()
+        }
+
+        etDob.setOnClickListener {
+            showDatePicker()
         }
 
         btnSaveChanges.setOnClickListener {
@@ -167,6 +175,39 @@ class PersonalInfoActivity : AppCompatActivity() {
                 Toast.makeText(this@PersonalInfoActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        // Default to yesterday if today session is 2026+
+        calendar.add(Calendar.DAY_OF_MONTH, -1)
+        
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val date = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                etDob.setText(date)
+            },
+            year,
+            month,
+            day
+        )
+        
+        // Restrict to past dates only (excluding today)
+        datePickerDialog.datePicker.maxDate = calendar.timeInMillis
+        
+        // Extra check for 2026 as requested
+        val maxCalendar = Calendar.getInstance()
+        maxCalendar.set(2026, Calendar.DECEMBER, 31, 23, 59, 59)
+        if (calendar.timeInMillis > maxCalendar.timeInMillis) {
+            datePickerDialog.datePicker.maxDate = maxCalendar.timeInMillis
+        }
+        
+        datePickerDialog.show()
     }
 
     override fun finish() {
