@@ -28,13 +28,9 @@ class ScheduleAppointmentActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
 
     private val studyTypes = arrayOf(
-        "CT Chest",
-        "CT Abdomen",
-        "CT Head",
-        "MRI Brain",
-        "MRI Spine",
-        "X-Ray Chest",
-        "X-Ray Abdomen"
+        "X-ray",
+        "CT",
+        "MRI"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +63,11 @@ class ScheduleAppointmentActivity : AppCompatActivity() {
 
         findViewById<ImageView>(R.id.btnBack).setOnClickListener {
             finish()
+        }
+
+        etPatientName.setFocusable(false)
+        etPatientName.setOnClickListener {
+            showPatientSelectionDialog()
         }
 
         etStudyType.setFocusable(false)
@@ -166,6 +167,36 @@ class ScheduleAppointmentActivity : AppCompatActivity() {
             etStudyType.setText(studyTypes[which])
         }
         builder.show()
+    }
+
+    private fun showPatientSelectionDialog() {
+        val userId = sessionManager.getUserId()
+        if (userId == -1) return
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.getPatients(userId)
+                if (response.isSuccessful && response.body() != null) {
+                    val patients = response.body()!!.patients ?: emptyList()
+                    if (patients.isEmpty()) {
+                        Toast.makeText(this@ScheduleAppointmentActivity, "No patients found. Please add a patient first.", Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
+
+                    val patientNames = patients.map { it.patient_name }.toTypedArray()
+                    AlertDialog.Builder(this@ScheduleAppointmentActivity)
+                        .setTitle("Select Patient")
+                        .setItems(patientNames) { _, which ->
+                            etPatientName.setText(patients[which].patient_name)
+                        }
+                        .show()
+                } else {
+                    Toast.makeText(this@ScheduleAppointmentActivity, "Could not load patients list", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@ScheduleAppointmentActivity, "Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun showDatePicker() {

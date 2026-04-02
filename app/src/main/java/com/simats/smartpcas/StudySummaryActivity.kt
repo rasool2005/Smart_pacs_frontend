@@ -52,7 +52,7 @@ class StudySummaryActivity : AppCompatActivity() {
             
             val imageRes = when (formattedScanType) {
                 "CT Scan" -> R.drawable.real_ct_scan
-                "MRI" -> R.drawable.real_mri
+                "MRI" -> R.drawable.real_mri_scan
                 else -> R.drawable.real_xray_chest
             }
             

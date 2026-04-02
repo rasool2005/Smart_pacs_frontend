@@ -21,11 +21,11 @@ class StudiesAdapter(
         val tvDate: TextView = view.findViewById(R.id.tvDate1)
         val tvStatus: TextView = view.findViewById(R.id.tvTag)
         val ivScan: ImageView = view.findViewById(R.id.ivStudyImage)
-        val btnDelete: ImageView = view.findViewById(R.id.btnDeleteStudy1)
+        val btnDelete: View = view.findViewById(R.id.btnDeleteStudy1)
         val llResult: View = view.findViewById(R.id.llResult)
         val tvResultValue: TextView = view.findViewById(R.id.tvResultValue)
         val tvConfidenceValue: TextView = view.findViewById(R.id.tvConfidenceValue)
-        val btnViewResults: View = view.findViewById(R.id.btnViewResults)
+        val btnViewResults: TextView = view.findViewById(R.id.btnViewResults)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,12 +39,21 @@ class StudiesAdapter(
         holder.tvTitle.text = if (study.is_ai) "[AI] ${study.study_type}" else study.study_type
         holder.tvPatient.text = study.patient_name
         holder.tvDate.text = "${study.study_date} ${study.study_time}"
-        holder.tvStatus.text = study.status
+        holder.tvStatus.visibility = View.GONE // Removed "Completed" label as requested
 
         // Display Result for AI studies
+        holder.btnViewResults.visibility = View.VISIBLE
+        
+        if (study.is_ai) {
+            holder.btnViewResults.text = "View Results →"
+            holder.btnViewResults.setTextColor(android.graphics.Color.parseColor("#1A62FF"))
+        } else {
+            holder.btnViewResults.text = "View / Scan →"
+            holder.btnViewResults.setTextColor(android.graphics.Color.parseColor("#666666"))
+        }
+        
         if (study.is_ai && !study.note.isNullOrEmpty()) {
             holder.llResult.visibility = View.VISIBLE
-            holder.btnViewResults.visibility = View.VISIBLE
             holder.tvResultValue.text = study.note
             
             val confidence = study.ai_report?.confidence_score ?: 0.0
@@ -55,7 +64,6 @@ class StudiesAdapter(
             holder.llResult.setBackgroundResource(R.drawable.bg_fff5f5_rounded)
         } else {
             holder.llResult.visibility = View.GONE
-            holder.btnViewResults.visibility = View.GONE
         }
 
         // Load image if available (Glide for AI scans)
@@ -67,10 +75,11 @@ class StudiesAdapter(
                 .into(holder.ivScan)
         } else {
             // Fallback to default modality image
-            val fallback = when (study.study_type.lowercase()) {
-                "ct", "ct scan" -> R.drawable.real_ct_scan
-                "mri" -> R.drawable.real_mri
-                "x-ray", "xray" -> R.drawable.real_xray_chest
+            val type = study.study_type.lowercase()
+            val fallback = when {
+                type.contains("ct") -> R.drawable.real_ct_scan
+                type.contains("mri") -> R.drawable.real_mri_scan
+                type.contains("x-ray") || type.contains("xray") -> R.drawable.real_xray_chest
                 else -> R.drawable.img_mock_ct
             }
             holder.ivScan.setImageResource(fallback)

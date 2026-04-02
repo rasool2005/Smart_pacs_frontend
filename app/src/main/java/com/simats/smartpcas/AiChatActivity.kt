@@ -1,8 +1,13 @@
 package com.simats.smartpcas
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -12,7 +17,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,12 +30,12 @@ class AiChatActivity : AppCompatActivity() {
 
     private lateinit var chatAdapter: ChatAdapter
     private val messages = mutableListOf<ChatMessage>()
-    private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
-    private lateinit var etInput: android.widget.EditText
-    private lateinit var chipGroupSuggestions: com.google.android.material.chip.ChipGroup
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var etInput: EditText
+    private lateinit var chipGroupSuggestions: ChipGroup
 
     private val xrayQueries = listOf(
-        "What is the standard Chest X-Ray protocol?",
+        "Lung opacity chest x-ray",
         "How to identify a Rib Fracture in X-Ray?",
         "What are common Pleural Effusion signs in X-Ray?",
         "How to assess Pneumothorax in Chest X-Ray?",
@@ -57,7 +66,6 @@ class AiChatActivity : AppCompatActivity() {
         "What is the Mass Effect in a Brain CT?",
         "How to interpret CT Hounsfield Units?",
         "What are the CT Contrast safety protocols?",
-        "What are the common Abdominal CT signs?",
         "How to identify HRCT Lung patterns?",
         "How to evaluate Neck Trauma in CT?",
         "How to identify a Spine Fracture on CT?",
@@ -68,7 +76,8 @@ class AiChatActivity : AppCompatActivity() {
         "What is the CT Windowing guide for clinicians?",
         "What is the standard CT Urogram protocol?",
         "What is the CT Radiation Dose (ALARA) principle?",
-        "How to evaluate Pelvis Trauma on CT?"
+        "How to evaluate Pelvis Trauma on CT?",
+        "How to identify common Abdominal CT signs?"
     )
 
     private val mriQueries = listOf(
@@ -99,7 +108,6 @@ class AiChatActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_ai_chat)
 
-        // Handle Window Insets for Keyboard and System Bars
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
@@ -107,42 +115,36 @@ class AiChatActivity : AppCompatActivity() {
             insets
         }
         
-        // Setup Chat UI elements
         recyclerView = findViewById(R.id.chatRecyclerView)
         etInput = findViewById(R.id.etInput)
         chipGroupSuggestions = findViewById(R.id.chipGroupSuggestions)
-        val btnSend = findViewById<com.google.android.material.card.MaterialCardView>(R.id.btnSend)
+        val btnSend = findViewById<MaterialCardView>(R.id.btnSend)
 
         chatAdapter = ChatAdapter(messages) { query ->
             etInput.setText(query)
             etInput.setSelection(query.length)
             etInput.requestFocus()
         }
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this).apply {
+        recyclerView.layoutManager = LinearLayoutManager(this).apply {
             stackFromEnd = true
         }
         recyclerView.adapter = chatAdapter
 
-
         setupSuggestions()
 
-        // Input handles
         etInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEND) {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendMessage(etInput.text.toString().trim())
                 true
             } else false
         }
-        
         etInput.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 sendMessage(etInput.text.toString().trim())
                 true
             } else false
         }
-
         btnSend.setOnClickListener { sendMessage(etInput.text.toString().trim()) }
-
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { handleBackNavigation() }
 
         setupBottomNavigation()
@@ -151,28 +153,23 @@ class AiChatActivity : AppCompatActivity() {
 
     private fun setupSuggestions(mode: String = "MAIN") {
         chipGroupSuggestions.removeAllViews()
-
         val mainChips = listOf("X-RAY", "CT", "MRI")
-
         val selectedQueries = when(mode) {
             "X-RAY" -> xrayQueries
             "CT" -> ctQueries
             "MRI" -> mriQueries
             else -> mainChips
         }
-
-        // Add "BACK" button if in sub-menu
         if (mode != "MAIN") {
             addChip("⏪ BACK", isBack = true)
         }
-
         for (query in selectedQueries) {
-            addChip(query, isBack = false, currentMode = mode, queriesList = selectedQueries)
+            addChip(query, isBack = false, currentMode = mode)
         }
     }
 
-    private fun addChip(query: String, isBack: Boolean, currentMode: String = "MAIN", queriesList: List<String>? = null) {
-        val chip = com.google.android.material.chip.Chip(this).apply {
+    private fun addChip(query: String, isBack: Boolean, currentMode: String = "MAIN") {
+        val chip = Chip(this).apply {
             text = query
             isClickable = true
             chipBackgroundColor = android.content.res.ColorStateList.valueOf(
@@ -186,7 +183,6 @@ class AiChatActivity : AppCompatActivity() {
                 if (isBack) {
                     setupSuggestions("MAIN")
                 } else if (currentMode == "MAIN") {
-                    // Transition to sub-menu
                     setupSuggestions(query)
                     val queriesToShow = when(query) {
                         "X-RAY" -> xrayQueries
@@ -198,7 +194,6 @@ class AiChatActivity : AppCompatActivity() {
                         addAiMessage("Here are 20 clinical queries about $query:", isQueries = true, queries = queriesToShow)
                     }
                 } else {
-                    // Fill input for sub-menu queries
                     etInput.setText(query)
                     etInput.setSelection(query.length)
                     etInput.requestFocus()
@@ -212,11 +207,8 @@ class AiChatActivity : AppCompatActivity() {
         if (text.isNotEmpty()) {
             addUserMessage(text)
             etInput.text.clear()
-            
-            // Hide keyboard
-            val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(etInput.windowToken, 0)
-            
             simulateAiResponse(text)
         }
     }
@@ -286,37 +278,25 @@ class AiChatActivity : AppCompatActivity() {
         recyclerView.smoothScrollToPosition(initialIndex)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val lowerQuery = query.lowercase().trim()
-            val isBasicDefinition = lowerQuery.contains("what is x-ray") || 
-                                  lowerQuery.contains("what is ct") || 
-                                  lowerQuery.contains("what is mri")
-
             val localResponse = generateLocalResponse(query)
-            var apiResponse: String? = null
+            var finalResponse = localResponse
             
-            if (isBasicDefinition) {
-                // Priority 1: Use our custom high-quality definitions for basic modalities
-                apiResponse = localResponse
-            } else {
-                // Priority 2: Try Server for professional report structure
+            val isGeneric = localResponse.contains("Specific imaging features", ignoreCase = true) ||
+                            localResponse.contains("specialized in diagnostic radiology", ignoreCase = true)
+
+            if (isGeneric) {
                 try {
                     val result = ApiClient.apiService.aiChat(query)
                     if (result.isSuccessful && result.body() != null) {
                         val serverResp = result.body()?.response
-                        // If server response is too short or generic, we check if local is better
-                        if (!serverResp.isNullOrBlank() && 
-                            serverResp.length > 60 && 
-                            !serverResp.contains("not identified", ignoreCase = true)) {
-                            apiResponse = serverResp
+                        if (!serverResp.isNullOrBlank() && serverResp.length > 20) {
+                            finalResponse = serverResp
                         }
                     }
-                } catch (e: Exception) {
-                    android.util.Log.e("AiChat", "Server Call Failed: ${e.message}")
-                }
+                } catch (e: Exception) { }
+            } else {
+                kotlinx.coroutines.delay(800)
             }
-
-            // Fallback to locally mapped expert answer if server gave a generic/repetitive response
-            val finalResponse = if (apiResponse.isNullOrBlank()) localResponse else apiResponse
 
             withContext(Dispatchers.Main) {
                 val currentIndex = messages.indexOf(typingMsg)
@@ -342,11 +322,6 @@ class AiChatActivity : AppCompatActivity() {
             return "You're welcome! I'm here to help. Do you have any other questions?"
         }
 
-        val coreMedicalTerms = MEDICAL_TERMS.filter { it !in listOf("hello", "hi", "hey", "help", "thank") }
-        if (coreMedicalTerms.none { cleanInput.contains(it) } && tokens.isNotEmpty()) {
-            return "I am specialized in radiology. Please ask about X-ray, CT, or MRI findings."
-        }
-        
         var bestMatch: KBEntry? = null
         var maxScore = 0
         for (entry in knowledgeBase) {
@@ -364,85 +339,69 @@ class AiChatActivity : AppCompatActivity() {
             }
         }
         
-        val disclaimer = "\n\nNote: This is an AI assisted interpretation."
-        if (bestMatch != null && maxScore > 2) return bestMatch.response + disclaimer
+        if (bestMatch != null && maxScore > 3) return bestMatch.response
         
-        val genericResponses = listOf(
-            "Specific imaging features for this query are not identified. Consider clinical correlation.",
-            "I recommend reviewing the 'Impression' section of the report for this specific case.",
-            "Generally, for soft tissue detail, MRI is preferred over CT for this region.",
-            "Ensure the study was performed with the correct protocol before finalizing the interpretation."
-        )
-        return genericResponses.random() + disclaimer
+        val coreMedicalTerms = MEDICAL_TERMS.filter { it !in listOf("hello", "hi", "hey", "help", "thank") }
+        if (coreMedicalTerms.none { cleanInput.contains(it) } && tokens.isNotEmpty()) {
+            return "I am specialized in diagnostic radiology. Please ask about X-ray, CT, or MRI protocols and findings."
+        }
+        
+        return "1. Observations:\nSpecific imaging features for this query require further clinical context.\n\n2. Possible Findings:\nFindings may vary based on modality and anatomical region.\n\n3. Differential Diagnosis:\nBroad categories including inflammatory, neoplastic, or vascular etiologies.\n\n4. Recommendation:\nFurther evaluation with targeted imaging or clinical correlation is suggested.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."
     }
 
     data class KBEntry(val keywords: List<String>, val response: String)
 
     companion object {
-        val MEDICAL_TERMS = listOf("x-ray", "xray", "mri", "ct scan", "ct", "dicom", "pacs", "contrast", "fracture", "pneumonia", "tumor", "stroke")
+        val MEDICAL_TERMS = listOf("x-ray", "xray", "mri", "ct", "dicom", "pacs", "contrast", "fracture", "pneumonia", "tumor", "stroke", "hemorrhage", "lesion", "tear", "scan")
         
         val knowledgeBase = listOf(
-            // General Knowledge
-            KBEntry(listOf("what is x-ray", "description x-ray", "xray"), "X-ray is a basic imaging technique that uses radiation to capture images of the body.\n\nBest for: Bones.\nShows: Fractures, infections, and lung issues.\nAdvantage: Fast and low cost.\nExample: Detecting a bone fracture."),
-            KBEntry(listOf("what is ct scan", "what is ct", "description ct"), "CT (Computed Tomography) uses multiple X-ray images to create detailed cross-sectional images.\n\nBest for: Internal organs, brain, and lungs.\nAdvantage: More detailed than a standard X-ray.\nShows: Tumors, bleeding, and internal injuries.\nExample: Detecting brain hemorrhage."),
-            KBEntry(listOf("what is mri", "description mri", "magnetic resonance"), "MRI (Magnetic Resonance Imaging) uses strong magnetic fields and radio waves (no radiation).\n\nBest for: Soft tissues.\nShows: Brain, muscles, and ligaments.\nAdvantage: Very high detail for soft tissue.\nExample: Detecting a ligament tear or brain tumor."),
-            
-            // X-RAY Knowledge
-            KBEntry(listOf("chest x-ray protocol", "cxr protocol"), "Standard CXR includes PA and Lateral views. Paired with clinical history, it evaluates lung parenchyma and cardiac silhouette."),
-            KBEntry(listOf("rib fracture", "broken rib"), "Look for cortical disruption on oblique views. CT may be required for diagnosing non-displaced or cartilaginous fractures."),
-            KBEntry(listOf("pleural effusion x-ray"), "Features include blunting of the costophrenic angles and meniscus sign. A lateral decubitus view can confirm small effusions."),
-            KBEntry(listOf("pneumothorax check", "lung collapse"), "Identify a thin, peripheral visceral pleural line with no lung markings beyond it. Expiratory films can enhance findings."),
-            KBEntry(listOf("consolidation x-ray", "pneumonia"), "Appears as increased lung density obscuring pulmonary vessels, often with air bronchograms, typical of pneumonia or hemorrhage."),
-            KBEntry(listOf("ggo assessment", "ground glass"), "Hazy area of increased lung opacity that doesn't obscure vascular markings. Can represent early infection, edema, or inflammation."),
-            KBEntry(listOf("scoliosis measurement", "cobb angle"), "Measure Cobb angle between the most tilted vertebrae in the curve. >10° defines scoliosis; >40° may require surgical review."),
-            KBEntry(listOf("osteoarthritis signs", "joint space"), "Classic signs: joint space narrowing, subchondral sclerosis, marginal osteophytes, and subchondral cysts."),
-            KBEntry(listOf("bone lytic lesion", "bone lesion"), "Focal bone destruction. Assess margins: well-defined (geographic), moth-eaten, or permeative to determine aggressiveness."),
-            KBEntry(listOf("dislocation views", "shoulder dislocation"), "Order orthogonal views (e.g., AP and Axillary/Y-view for shoulder) to confirm the direction (anterior vs posterior)."),
-            KBEntry(listOf("osteoporosis features"), "Thinning of the cortex and reduced trabecular density. CXR is not as sensitive as DEXA but can show vertebral wedge-fractures."),
-            KBEntry(listOf("heart failure cxr"), "Look for cardiomegaly, Kerley B lines, cephalization of vessels, and pleural effusions (Cephalization indicates elevated LAP)."),
-            KBEntry(listOf("pediatric x-ray safety"), "Use low-dose (ALARA) protocols. Gonadal shielding is standard unless it obscures the anatomy under review."),
-            KBEntry(listOf("abdominal x-ray interpretation", "axr"), "Assess for ileus, obstructions (dilated loops), or pneumoperitoneum (Rigler's sign). Check calcifications (kidney stones, biliary)."),
-            KBEntry(listOf("wrist fracture view"), "Standard views are AP, Lateral, and Oblique. A dedicated scaphoid view is required if scaphoid pain is clinically noted."),
-            KBEntry(listOf("spine x-ray evaluation"), "Assess vertebral alignment, disc space height, and look for pars defects or osteophytic changes."),
-            KBEntry(listOf("chest radiograph anatomy"), "PA film evaluates: Heart, Lungs, Pleura, Hila, Mediastinum, and Diaphragm. Always check the blind zones (retrocardiac, apices)."),
-            
-            // CT Knowledge
-            KBEntry(listOf("head hemorrhage ct", "brain bleed"), "Look for hyperdense (bright) acute blood: biconvex (EDH), crescent (SDH), or intraventricular blood."),
-            KBEntry(listOf("pulmonary embolism ct", "pe scan"), "CTPA shows intraluminal filling defects in pulmonary arteries. Check for right heart strain signs (RV/LV ratio >1)."),
-            KBEntry(listOf("kidney stones ct", "ncct kub"), "Non-contrast CT is the gold standard for urolithiasis. Hyperdense foci in the ureter or renal pelvis confirm the diagnosis."),
-            KBEntry(listOf("appendicitis check ct"), "Appendix diameter >6mm, wall thickening, and 'periapendiceal fat stranding' are key diagnostic features on CT."),
-            KBEntry(listOf("liver cirrhosis ct"), "Nodular surface contour, caudate lobe hypertrophy, and splenomegaly. Check for varices indicating portal hypertension."),
-            KBEntry(listOf("mass effect brain", "midline shift"), "Displacement of brain structures (midline shift, ventricle compression) due to hematoma, tumor, or edema."),
-            KBEntry(listOf("ct hounsfield units", "hu values"), "HU values: Water=0, Bone=+1000, Air=-1000, Fat=-50 to -100. Helps characterize masses (e.g., fat indicates lipoma)."),
-            KBEntry(listOf("ct contrast safety", "gfr"), "Check serum creatinine/eGFR. If eGFR <30, contrast is generally avoided due to Acute Kidney Injury (AKI) risk."),
-            KBEntry(listOf("abdominal ct signs"), "Look for bowel wall thickening, mass lesions, and pneumoperitoneum. Assess retroperitoneal lymphadenopathy."),
-            KBEntry(listOf("hrct lung pattern"), "Identify septal thickening, cystic changes, or honeycombing (UIP/NSIP patterns) for interstitial lung disease (ILD) diagnosis."),
-            KBEntry(listOf("neck trauma ct"), "Emergency CT assesses cervical spine alignment, hardware, and soft tissue for potential injuries or hematoma."),
-            KBEntry(listOf("spine fracture ct"), "CT is superior for bony detail. Identify compression, burst, or facet fractures. Check for spinal canal narrowing."),
-            KBEntry(listOf("ct sinus anatomy"), "Assess paranasal sinus drainage pathways, septal deviation, and mucosal thickening indicative of sinusitis or polyps."),
-            KBEntry(listOf("brain infarct ct", "stroke ct"), "Early signs: 'hyperdense MCA sign', loss of gray-white differentiation, and sulcal effacement (may be normal in very early stroke)."),
-            KBEntry(listOf("multiphasic ct liver"), "Essential for HCC detection. Assess arterial phase (enhancement), portal venous, and washout phases."),
-            KBEntry(listOf("ct radiation dose", "alara"), "ALARA principle (As Low As Reasonably Achievable). Use optimized protocols to minimize life-long stochastic risk."),
-
-            // MRI Knowledge
-            KBEntry(listOf("brain stroke mri", "dwi adc"), "DWI/ADC restriction is highly sensitive for acute ischemia. Lesions are bright on DWI and dark on ADC mapping."),
-            KBEntry(listOf("t2 hyperintensity"), "Bright signal on T2 indicates fluid, edema, or inflammation. Common in MS plaques, tumors, and ischemic injury."),
-            KBEntry(listOf("meniscus tear mri", "knee injury"), "Grade 3 signal reaching the articular surface on T2/PD sequences diagnostic for a tear."),
-            KBEntry(listOf("cord compression mri"), "Spinal cord indentation with T2 hyperintensity within the cord (myelomalacia) requires urgent neurosurgical review."),
-            KBEntry(listOf("white matter change"), "Nonspecific hyperintensities common in aging/vascular disease. Dawson's fingers are specific to Multiple Sclerosis."),
-            KBEntry(listOf("tumor character mri"), "Assess enhancement, edema, and necrosis. Perfusion MRI can help differentiate radiation necrosis from recurrence."),
-            KBEntry(listOf("gadolinium safety"), "Avoid in severe renal impairment (eGFR <30) due to NSF risk. Newer macrocyclic agents carry lower risk."),
-            KBEntry(listOf("knee ligament mri", "acl tear"), "Check ACL/PCL continuity. ACL tears are characterized by non-visualization or wavy appearance on sagittal PD views."),
-            KBEntry(listOf("spine disc herniation", "mri"), "Differentiate between protrusion (base wider than herniation) and extrusion (neck narrower than herniation)."),
-            KBEntry(listOf("prostate pi-rads"), "PI-RADS v2.1 categorizes risk from 1 to 5. PI-RADS 4/5 indicates high suspicion and usually requires biopsy."),
-            KBEntry(listOf("shoulder labrum mri"), "Look for Labrum signal intensity changes or detachment. SLAP lesions involve the superior labrum/biceps anchor."),
-            KBEntry(listOf("liver hemangioma mri"), "Classic 'lightbulb' bright signal on T2 and peripheral nodular discontinuous enhancement on post-gadolinium sequences."),
-            KBEntry(listOf("mri sequence basics", "t1 vs t2"), "T1: Fat is bright, Fluid is dark (best for anatomy). T2: Fluid is bright (best for pathology). FLAIR: T2 with fluid suppressed."),
-            KBEntry(listOf("diffusion adc maps"), "DWI restriction suggests high cellularity (tumor) or cytotoxic edema (stroke). ADC values help confirm true restriction."),
-            KBEntry(listOf("mri flair significance"), "FLAIR suppresses CSF signal, making periventricular white matter lesions much more visible than standard T2."),
-            KBEntry(listOf("mri safety metal"), "Strict screening for pacemakers, metal fragments, or non-MRI compatible implants due to strong magnetic fields."),
-            KBEntry(listOf("myelitis signs mri"), "Inflammation of the cord showing T2 hyperintensity extending over several segments. Check for peripheral enhancement."),
-            KBEntry(listOf("pelvis mri anatomy"), "High resolution T2 sequences are essential to evaluate the prostate, uterus, ovaries, and rectum for staging.")
+            KBEntry(listOf("lung opacity chest x-ray", "lung opacity", "chest x-ray"), "1. Observations:\nIncreased opacity in the lung field.\n\n2. Possible Findings:\nMay indicate infection, fluid accumulation, or inflammation.\n\n3. Differential Diagnosis:\n- Pneumonia\n- Pulmonary edema\n- Atelectasis\n\n4. Recommendation:\nClinical correlation and further imaging may be required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("fracture x-ray", "bone fracture", "broken bone"), "1. Observations:\nDiscontinuity or break in bone cortex with a lucent fracture line.\n\n2. Possible Findings:\nIndicates bone fracture or crack with possible displacement.\n\n3. Differential Diagnosis:\n- Acute fracture\n- Stress fracture\n- Pathological fracture\n\n4. Recommendation:\nOrthopedic evaluation and possible immobilization advised.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("brain hemorrhage ct", "head hemorrhage", "brain bleed"), "1. Observations:\nHyperdense (bright) region within the brain parenchyma on non-contrast CT.\n\n2. Possible Findings:\nSuggestive of acute intracranial bleeding.\n\n3. Differential Diagnosis:\n- Intracerebral hemorrhage\n- Subdural hematoma\n- Epidural hematoma\n\n4. Recommendation:\nImmediate clinical evaluation and urgent neurosurgical review required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("hypodense lesion ct", "hypodense lesion"), "1. Observations:\nArea of lower density (dark) compared to surrounding brain tissue on CT.\n\n2. Possible Findings:\nMay indicate fluid accumulation, cyst, or ischemic tissue damage.\n\n3. Differential Diagnosis:\n- Infarction (ischemic stroke)\n- Arachnoid or epidermoid cyst\n- Necrotic tumor\n\n4. Recommendation:\nFurther imaging with contrast or MRI diffusion sequences may clarify the nature.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("hyperintensity mri", "t2 hyperintensity", "mri brightness"), "1. Observations:\nBright (hyperintense) signal area on T2 or FLAIR weighted MRI sequences.\n\n2. Possible Findings:\nIndicates increased water content, inflammation, or abnormal tissue.\n\n3. Differential Diagnosis:\n- Vasogenic edema\n- Demyelination (Multiple Sclerosis)\n- Tumor or metastasis\n\n4. Recommendation:\nCorrelation with DWI to exclude acute infarction; contrast-enhanced MRI if mass lesion suspected.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ligament tear mri", "ligament injury", "acl tear"), "1. Observations:\nDisruption or signal discontinuity within the ligament on T2-weighted MRI.\n\n2. Possible Findings:\nSuggests partial or complete ligament injury or tear.\n\n3. Differential Diagnosis:\n- Partial tear\n- Complete tear\n- Mucoid degeneration / sprain\n\n4. Recommendation:\nOrthopedic consultation recommended; clinical stability tests (e.g., Lachman for ACL).\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("pleural effusion x-ray", "fluid in lung", "effusion signs"), "1. Observations:\nBlunting of the costophrenic angle; meniscus sign; fluid-level opacity.\n\n2. Possible Findings:\nFluid accumulation in the pleural space.\n\n3. Differential Diagnosis:\n- Transudative effusion (CHF, cirrhosis)\n- Exudative effusion (pneumonia, malignancy)\n- Hemothorax\n\n4. Recommendation:\nLateral decubitus view or ultrasound for volume quantification and assessment.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("kidney stones ct", "renal calculi", "urolithiasis"), "1. Observations:\nHyperdense (bright) structures in the renal pelvis, ureter, or bladder on non-contrast CT.\n\n2. Possible Findings:\nIndicates presence of urinary calculi causing potential obstruction.\n\n3. Differential Diagnosis:\n- Renal calculi (calcium oxalate, uric acid)\n- Ureteric stones\n- Phleboliths (pelvic veins)\n\n4. Recommendation:\nUrological consultation advised; assess for hydronephrosis and degree of obstruction.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("brain tumor mri", "intracranial neoplasm", "brain mass"), "1. Observations:\nAbnormal mass with altered signal intensity on T T1, T2, and FLAIR MRI sequences.\n\n2. Possible Findings:\nSuggests presence of intracranial neoplasm with possible surrounding edema.\n\n3. Differential Diagnosis:\n- Primary glioma (GBM, astrocytoma)\n- Brain metastasis\n- Meningioma\n\n4. Recommendation:\nContrast-enhanced MRI for further characterization; neurosurgical and oncology referral.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("stroke ct findings", "ischemic stroke ct", "hemorrhagic stroke ct"), "1. Observations:\nHypodense (dark) or hyperdense (bright) regions in brain territory on non-contrast CT.\n\n2. Possible Findings:\nIndicates ischemic or hemorrhagic stroke depending on density pattern.\n\n3. Differential Diagnosis:\n- Ischemic stroke (hypodense)\n- Hemorrhagic stroke (hyperdense)\n- Hyperdense MCA sign (dense clot)\n\n4. Recommendation:\nImmediate medical attention required; CTA for vessel occlusion assessment (thrombectomy planning).\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("pneumothorax x-ray", "collapsed lung"), "1. Observations:\nVisible visceral pleural line with absence of lung markings peripheral to it.\n\n2. Possible Findings:\nIndicates air in the pleural space causing lung collapse.\n\n3. Differential Diagnosis:\n- Simple spontaneous pneumothorax\n- Traumatic pneumothorax\n- Tension pneumothorax (tracheal shift present)\n\n4. Recommendation:\nCheck for tracheal deviation (tension); immediate clinical attention required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("osteoporosis x-ray", "low bone density"), "1. Observations:\nReduced bone density with thinning of the cortical bone and trabeculae.\n\n2. Possible Findings:\nIndicates weakened bone mineral density with fracture risk.\n\n3. Differential Diagnosis:\n- Osteoporosis\n- Osteopenia\n- Hyperparathyroidism\n\n4. Recommendation:\nBone density test (DEXA scan) recommended; endocrinology referral.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("pulmonary embolism ct", "pe scan", "ctpa"), "1. Observations:\nIntraluminal filling defects in the pulmonary arteries on CTPA.\n\n2. Possible Findings:\nIndicates blockage of pulmonary blood flow by thrombus.\n\n3. Differential Diagnosis:\n- Acute pulmonary embolism\n- Chronic thromboembolic disease\n- Tumor embolus\n\n4. Recommendation:\nUrgent anticoagulation assessment; evaluate for right heart strain markers on CT.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("appendicitis ct scan", "appendix inflammation"), "1. Observations:\nEnlarged appendix (>6mm diameter) with wall thickening and periappendiceal fat stranding.\n\n2. Possible Findings:\nSuggests acute inflammation of the appendix.\n\n3. Differential Diagnosis:\n- Acute appendicitis\n- Periappendiceal abscess\n- Mesenteric adenitis\n\n4. Recommendation:\nSurgical consultation recommended; correlate with Alvarado score.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("stroke mri findings", "dwi restricted", "acute stroke mri"), "1. Observations:\nDiffusion restriction (bright DWI + dark ADC) in the affected brain territory.\n\n2. Possible Findings:\nIndicates acute ischemic stroke with cytotoxic edema.\n\n3. Differential Diagnosis:\n- Acute ischemic stroke\n- Transient ischemic attack (TIA)\n- Hypoglycemia (mimics stroke on MRI)\n\n4. Recommendation:\nImmediate neurological evaluation; CTA for large vessel occlusion assessment.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("meniscus tear mri", "knee injury mri"), "1. Observations:\nAbnormal T2 signal reaching the articular surface of the meniscus on knee MRI.\n\n2. Possible Findings:\nSuggests meniscal tear or degeneration (Grade 3 signal).\n\n3. Differential Diagnosis:\n- Medial or lateral meniscus tear\n- Bucket-handle tear (if displaced fragment)\n- Degenerative meniscal changes\n\n4. Recommendation:\nOrthopedic consultation advised; consider arthroscopy if symptoms persist.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("scoliosis x-ray", "cobb angle measurement"), "1. Observations:\nLateral curvature of the spine exceeding 10 degrees on standing radiograph.\n\n2. Possible Findings:\nIndicates abnormal spinal alignment with possible rotational deformity.\n\n3. Differential Diagnosis:\n- Adolescent idiopathic scoliosis\n- Degenerative scoliosis (adult)\n- Neuromuscular scoliosis\n\n4. Recommendation:\nMeasure Cobb angle on standing full-spine radiographs; spine specialist consultation.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("liver cirrhosis ct", "nodular liver", "caudate hypertrophy"), "1. Observations:\nNodular and irregular liver surface contour; hypertrophy of caudate lobe; splenomegaly; ascites.\n\n2. Possible Findings:\nSuggests chronic liver parenchymal damage with portal hypertension.\n\n3. Differential Diagnosis:\n- Liver cirrhosis\n- Chronic hepatitis\n- Budd-Chiari syndrome\n\n4. Recommendation:\nHCC screening with multiphasic CT or MRI; hepatology consultation.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("spinal cord compression mri", "cord impingement", "myelopathy mri"), "1. Observations:\nNarrowed spinal canal with focal T2 high signal change within the spinal cord.\n\n2. Possible Findings:\nIndicates myelopathy due to external compression on the cord.\n\n3. Differential Diagnosis:\n- Disc herniation\n- Extradural tumor or metastasis\n- Spinal stenosis\n\n4. Recommendation:\nUrgent neurological consultation required if acute neurological deficit is present.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("calcification ct imaging", "hounsfield units calcification"), "1. Observations:\nFocal high-density (bright) areas with Hounsfield Units >100 HU in soft tissue.\n\n2. Possible Findings:\nIndicates calcium deposits within tissue or vessels.\n\n3. Differential Diagnosis:\n- Dystrophic calcification (chronic infection, old hematoma)\n- Metastatic calcification (hypercalcemia)\n- Tumoral calcification (e.g., meningioma, teratoma)\n\n4. Recommendation:\nClinical context is essential; correlate with serum calcium and tissue diagnosis if required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("mri", "magnetic resonance imaging", "what is mri"), "1. Observations:\nMRI uses magnetic fields and radio waves — no ionizing radiation.\n\n2. Possible Findings:\nKey sequences: T1 (anatomy), T2 (pathology/edema), FLAIR (periventricular), DWI/ADC (stroke).\n\n3. Differential Diagnosis:\nSuperior for Brain (MS, tumor), Spine (disc), and Soft tissue (ligaments).\n\n4. Recommendation:\nAlways confirm metallic implant safety before scanning.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("x-ray", "radiograph", "what is x-ray"), "1. Observations:\nX-Ray uses ionizing radiation to produce 2D projection images.\n\n2. Possible Findings:\nBone appears white (opaque), Air appears black (lucent). Best for fractures and chest screening.\n\n3. Differential Diagnosis:\nUsed for pneumonia, effusion, fractures, and alignment.\n\n4. Recommendation:\nPA view is standard for chest radiographs to minimize heart magnification.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct", "computed tomography", "what is ct"), "1. Observations:\nCT uses X-rays with computer reconstruction to produce cross-sectional images (3D).\n\n2. Possible Findings:\nMeasured in Hounsfield Units (HU). Bone is +1000, Air is -1000, Water is 0.\n\n3. Differential Diagnosis:\nPreferred for emergency trauma, hemorrhage, and lung imaging.\n\n4. Recommendation:\nAlways review in multiple windows (Lung, Bone, Soft Tissue).\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct scan contrast safety", "gfr protocols"), "Observations:\nUse of iodinated contrast in CT imaging requires patient screening.\n\nPossible Findings:\nRisk of allergic reactions or contrast-induced nephropathy.\n\nDifferential Considerations:\n- Contrast allergy\n- Renal impairment\n- Previous adverse reactions\n\nRecommendation:\nCheck renal function (creatinine), ensure hydration, and review allergy history before administration.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("hrct lung patterns", "lung fibrosis"), "Observations:\nPresence of ground-glass opacities, reticulations, or nodules.\n\nPossible Findings:\nSuggests interstitial or inflammatory lung disease.\n\nDifferential Diagnosis:\n- Interstitial lung disease\n- Pulmonary fibrosis\n- Infection\n\nRecommendation:\nCorrelation with clinical history and pulmonary function tests.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("neck trauma ct", "c-spine trauma"), "Observations:\nAssessment of cervical spine alignment and soft tissues.\n\nPossible Findings:\nFractures, soft tissue swelling, or vascular injury.\n\nDifferential Diagnosis:\n- Cervical fracture\n- Ligament injury\n- Hematoma\n\nRecommendation:\nUrgent evaluation and stabilization if trauma suspected.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("spine fracture ct", "vertebral fracture"), "Observations:\nDiscontinuity in vertebral body or alignment changes.\n\nPossible Findings:\nIndicates vertebral fracture.\n\nDifferential Diagnosis:\n- Compression fracture\n- Burst fracture\n- Pathological fracture\n\nRecommendation:\nOrthopedic or neurosurgical consultation advised.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("brain infarct ct", "stroke signs ct"), "Observations:\nHypodense area in affected brain region.\n\nPossible Findings:\nIndicates ischemic infarction.\n\nDifferential Diagnosis:\n- Ischemic stroke\n- Edema\n- Old infarct\n\nRecommendation:\nImmediate neurological assessment required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct windowing guide", "window width level"), "Observations:\nAdjustment of window width and level for tissue visualization.\n\nPossible Findings:\nEnhances visibility of soft tissue, lung, or bone structures.\n\nDifferential Considerations:\n- Lung window\n- Bone window\n- Soft tissue window\n\nRecommendation:\nUse appropriate window settings based on diagnostic requirement.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct urogram protocol", "kub ct"), "Observations:\nMultiphasic imaging including non-contrast, nephrographic, and excretory phases.\n\nPossible Findings:\nEvaluates urinary tract structures for tumors or obstruction.\n\nDifferential Diagnosis:\n- Stones\n- Tumors\n- Obstruction\n\nRecommendation:\nFollow proper contrast timing and hydration protocol.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("evaluate knee ligament mri", "acl pcl injury"), "Observations:\nContinuity and signal intensity of ligaments.\n\nPossible Findings:\nIndicates ligament injury or tear.\n\nDifferential Diagnosis:\n- ACL tear\n- PCL injury\n- Sprain\n\nRecommendation:\nOrthopedic consultation recommended.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("spine disc herniation mri", "disc protrusion"), "Observations:\nDisc protrusion compressing adjacent structures.\n\nPossible Findings:\nIndicates herniated disc.\n\nDifferential Diagnosis:\n- Disc bulge\n- Herniation\n- Degeneration\n\nRecommendation:\nClinical correlation and spine specialist consultation.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("difference t1 t2 mri", "t1 vs t2"), "Observations:\nT1 shows anatomy; T2 highlights fluid and pathology.\n\nPossible Findings:\nDifferent tissue contrasts based on sequence.\n\nDifferential Considerations:\n- T1-weighted imaging\n- T2-weighted imaging\n\nRecommendation:\nUse both sequences for comprehensive evaluation.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("interpret mri diffusion adc", "adc mapping"), "Observations:\nAreas of restricted diffusion appear bright on DWI and dark on ADC.\n\nPossible Findings:\nIndicates acute ischemia or cellular injury.\n\nDifferential Diagnosis:\n- Stroke\n- Tumor\n- Abscess\n\nRecommendation:\nCorrelate with clinical findings and other sequences.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("significance flair mri", "periventricular lesions flair"), "Observations:\nSuppresses fluid signal to highlight lesions.\n\nPossible Findings:\nImproves visibility of edema and lesions (e.g., MS plaques).\n\nDifferential Diagnosis:\n- Multiple sclerosis\n- Infarction\n- Inflammation\n\nRecommendation:\nUse in brain imaging for lesion detection.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("common abdominal ct signs", "fat stranding abdomen"), "Observations:\nAbnormal organ size, density changes, or fluid collections.\n\nPossible Findings:\nMay indicate infection, inflammation, or mass lesions.\n\nDifferential Diagnosis:\n- Appendicitis\n- Tumor\n- Abscess\n- Bowel obstruction\n\nRecommendation:\nFurther clinical and laboratory correlation advised.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct sinus anatomy basics", "ostiomeatal complex"), "Observations:\nVisualization of maxillary, ethmoid, frontal, and sphenoid sinuses.\n\nPossible Findings:\nHelps identify sinus structure and abnormalities.\n\nDifferential Diagnosis:\n- Sinusitis\n- Polyps\n- Mucosal thickening\n\nRecommendation:\nEvaluate sinus symmetry and air-fluid levels.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct bone scan findings", "bone density ct"), "Observations:\nChanges in bone density and structure.\n\nPossible Findings:\nIndicates fractures, lesions, or degeneration.\n\nDifferential Diagnosis:\n- Fracture\n- Tumor\n- Infection\n\nRecommendation:\nCorrelate with clinical symptoms and history.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("multiphasic ct liver scan", "hcc screening"), "Observations:\nImaging done in arterial, portal venous, and delayed phases.\n\nPossible Findings:\nHelps detect liver lesions and vascular patterns.\n\nDifferential Diagnosis:\n- Hepatocellular carcinoma\n- Hemangioma\n- Metastasis\n\nRecommendation:\nUse contrast timing properly for accurate diagnosis.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("ct radiation dose alara", "patient radiation safety"), "Observations:\nRadiation exposure minimized while maintaining image quality.\n\nPossible Findings:\nEnsures patient safety during imaging.\n\nDifferential Considerations:\n- Dose optimization\n- Patient safety protocols\n\nRecommendation:\nFollow ALARA principle to reduce unnecessary exposure.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("prostate pi-rads criteria", "prostate mri staging"), "Observations:\nAssessment of prostate lesions using standardized scoring.\n\nPossible Findings:\nHelps identify risk of prostate cancer.\n\nDifferential Diagnosis:\n- Benign lesion\n- Suspicious tumor\n\nRecommendation:\nUse PI-RADS scoring for structured reporting.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("shoulder labrum tear mri", "slap tear mri"), "Observations:\nIrregular labrum contour with signal changes.\n\nPossible Findings:\nIndicates labral tear or injury.\n\nDifferential Diagnosis:\n- SLAP tear\n- Degenerative changes\n\nRecommendation:\nOrthopedic evaluation recommended.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("evaluate liver hemangioma mri", "lightbulb sign mri"), "Observations:\nWell-defined lesion with characteristic enhancement.\n\nPossible Findings:\nSuggests benign vascular tumor.\n\nDifferential Diagnosis:\n- Hemangioma\n- Metastasis\n\nRecommendation:\nFollow-up imaging may be required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("breast mri imaging protocols", "breast contrast mri"), "Observations:\nUse of contrast-enhanced dynamic sequences.\n\nPossible Findings:\nHelps detect lesions and vascular patterns.\n\nDifferential Diagnosis:\n- Benign lesion\n- Malignant tumor\n\nRecommendation:\nFollow standardized breast MRI protocol.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("basic mri sequence types", "brain mri sequences"), "Observations:\nDifferent sequences provide varied tissue contrast.\n\nPossible Findings:\nUsed for detailed tissue analysis.\n\nDifferential Considerations:\n- T1, T2, FLAIR, DWI, ADC, SWI\n\nRecommendation:\nUse multiple sequences for accurate diagnosis.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("myelitis signs mri", "spinal cord inflammation"), "Observations:\nSignal changes in spinal cord.\n\nPossible Findings:\nIndicates inflammation of spinal cord.\n\nDifferential Diagnosis:\n- Myelitis\n- Multiple sclerosis\n\nRecommendation:\nNeurological evaluation required.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician."),
+            KBEntry(listOf("basics pelvis mri anatomy", "pelvis staging mri"), "Observations:\nVisualization of pelvic organs and structures.\n\nPossible Findings:\nHelps detect abnormalities in pelvic region.\n\nDifferential Diagnosis:\n- Tumor\n- Infection\n- Structural abnormality\n\nRecommendation:\nUse appropriate MRI sequences for evaluation.\n\nThis analysis is AI-assisted and should be reviewed by a qualified radiologist or physician.")
         )
     }
 }

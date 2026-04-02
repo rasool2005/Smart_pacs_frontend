@@ -33,23 +33,10 @@ class StudyDetailsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvStudyDate).text = date
         findViewById<TextView>(R.id.tvStudyStatus).text = "Completed"
         
+        findViewById<MaterialButton>(R.id.btnAiResults).text = "Scan Image for AI Analysis"
         findViewById<MaterialButton>(R.id.btnAiResults).setOnClickListener {
-            val intent = Intent(this, AiResultsActivity::class.java)
-            
-            val formattedScanType = when {
-                title.contains("CT", ignoreCase = true) -> "CT Scan"
-                title.contains("MRI", ignoreCase = true) -> "MRI"
-                else -> "X-Ray"
-            }
-            
-            val resId = when (formattedScanType) {
-                "CT Scan" -> R.drawable.real_ct_scan
-                "MRI" -> R.drawable.real_mri
-                else -> R.drawable.real_xray_chest
-            }
-            
-            intent.putExtra("scan_type", formattedScanType)
-            intent.putExtra("image_res_id", resId)
+            val intent = Intent(this, AiScannerActivity::class.java)
+            intent.putExtra("PATIENT_NAME", intent.getStringExtra("PATIENT_INFO"))
             startActivity(intent)
         }
 

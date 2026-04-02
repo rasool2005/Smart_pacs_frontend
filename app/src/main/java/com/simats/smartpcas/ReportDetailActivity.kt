@@ -1,9 +1,6 @@
 package com.simats.smartpcas
 
-import android.content.ContentValues
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -17,12 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
-import java.io.InputStream
-import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -123,7 +115,7 @@ class ReportDetailActivity : AppCompatActivity() {
     private fun loadFallbackImage(ivReportImage: ImageView, examinationType: String) {
         val imageResId = when (examinationType.lowercase()) {
             "ct scan", "ct" -> R.drawable.real_ct_scan
-            "mri", "mri brain" -> R.drawable.real_mri
+            "mri", "mri brain" -> R.drawable.real_mri_scan
             "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
             else -> R.drawable.img_mock_ct
         }
@@ -131,7 +123,6 @@ class ReportDetailActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-
         lifecycleScope.launch {
             viewModel.sendEmailState.collect { resource ->
                 when (resource) {
@@ -149,62 +140,10 @@ class ReportDetailActivity : AppCompatActivity() {
                     is Resource.Error -> {
                         progressBar.visibility = View.GONE
                         btnEmailReport.isEnabled = true
-                        Toast.makeText(this@ReportDetailActivity, resource.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ReportDetailActivity, resource.message, Toast.LENGTH_SHORT).show()
                         viewModel.resetEmailState()
                     }
                     else -> {}
-                }
-            }
-        }
-    }
-
-    private suspend fun savePdfToDownloads(body: ResponseBody?) {
-        if (body == null) {
-            Toast.makeText(this, "Failed to download PDF: Empty response", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        withContext(Dispatchers.IO) {
-            try {
-                val fileName = "AI_Report_${report?.id}_${System.currentTimeMillis()}.pdf"
-                
-                val resolver = contentResolver
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                if (uri != null) {
-                    var inputStream: InputStream? = null
-                    var outputStream: OutputStream? = null
-                    try {
-                        inputStream = body.byteStream()
-                        outputStream = resolver.openOutputStream(uri)
-
-                        val buffer = ByteArray(4096)
-                        var read: Int
-                        while (inputStream.read(buffer).also { read = it } != -1) {
-                            outputStream?.write(buffer, 0, read)
-                        }
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@ReportDetailActivity, "Saved to Downloads", Toast.LENGTH_LONG).show()
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@ReportDetailActivity, "Error saving file: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
-                    } finally {
-                        inputStream?.close()
-                        outputStream?.close()
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@ReportDetailActivity, "Failed to save file", Toast.LENGTH_SHORT).show()
                 }
             }
         }

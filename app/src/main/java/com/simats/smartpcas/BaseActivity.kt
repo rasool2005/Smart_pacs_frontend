@@ -31,7 +31,7 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     open fun setupBottomNavigation() {
-        findViewById<LinearLayout>(R.id.navHome).setOnClickListener {
+        findViewById<LinearLayout>(R.id.navHome)?.setOnClickListener {
             if (this !is HomeActivity) {
                 val intent = Intent(this, HomeActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -39,7 +39,7 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<LinearLayout>(R.id.navPatients).setOnClickListener {
+        findViewById<LinearLayout>(R.id.navPatients)?.setOnClickListener {
             if (this !is PatientsActivity) {
                 val intent = Intent(this, PatientsActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -47,7 +47,7 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<LinearLayout>(R.id.navAiChat).setOnClickListener {
+        findViewById<LinearLayout>(R.id.navAiChat)?.setOnClickListener {
             if (this !is AiChatActivity) {
                 val intent = Intent(this, AiChatActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -55,7 +55,7 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<LinearLayout>(R.id.navSchedule).setOnClickListener {
+        findViewById<LinearLayout>(R.id.navSchedule)?.setOnClickListener {
             if (this !is FollowUpActivity) {
                 val intent = Intent(this, FollowUpActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -63,7 +63,7 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<LinearLayout>(R.id.navProfile).setOnClickListener {
+        findViewById<LinearLayout>(R.id.navProfile)?.setOnClickListener {
             if (this !is ProfileActivity) {
                 val intent = Intent(this, ProfileActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)

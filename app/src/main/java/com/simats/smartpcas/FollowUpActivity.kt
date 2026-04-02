@@ -84,18 +84,14 @@ class FollowUpActivity : BaseActivity() {
         rvUpcoming.adapter = adapter
     }
 
+    private val temporarilyDeletedIds = mutableSetOf<String>()
+
     private fun getDeletedAppointmentIds(): Set<String> {
-        val userId = SessionManager(this).getUserId()
-        val prefs = getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE)
-        return prefs.getStringSet("deleted_appointments_$userId", emptySet()) ?: emptySet()
+        return temporarilyDeletedIds
     }
 
     private fun markAppointmentAsDeletedLocally(studyId: Int) {
-        val userId = SessionManager(this).getUserId()
-        val prefs = getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE)
-        val deletedIds = getDeletedAppointmentIds().toMutableSet()
-        deletedIds.add(studyId.toString())
-        prefs.edit().putStringSet("deleted_appointments_$userId", deletedIds).apply()
+        temporarilyDeletedIds.add(studyId.toString())
     }
 
     private fun showDeleteConfirmationDialog(appointment: Study) {

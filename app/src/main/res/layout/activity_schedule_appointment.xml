@@ -104,13 +104,13 @@
                     <EditText
                         android:id="@+id/etPatientName"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_gray_input"
                         android:hint="Enter patient name"
                         android:paddingHorizontal="16dp"
                         android:inputType="textPersonName"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -153,13 +153,13 @@
                     <EditText
                         android:id="@+id/etStudyType"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_gray_input"
                         android:hint="Select study type"
                         android:paddingHorizontal="16dp"
                         android:inputType="text"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -203,7 +203,7 @@
                     <EditText
                         android:id="@+id/etDate"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_gray_input"
                         android:hint="Pick a date"
@@ -212,7 +212,7 @@
                         android:clickable="true"
                         android:cursorVisible="false"
                         android:inputType="none"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <!-- Time -->
                     <LinearLayout
@@ -240,7 +240,7 @@
                     <EditText
                         android:id="@+id/etTime"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_gray_input"
                         android:hint="Pick a time"
@@ -249,7 +249,7 @@
                         android:clickable="true"
                         android:cursorVisible="false"
                         android:inputType="none"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

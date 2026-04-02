@@ -25,124 +25,123 @@
             app:shapeAppearanceOverlay="@style/RoundedImageView" />
 
         <TextView
-            android:id="@+id/tvStudyTitle1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:text="Study Type"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/tvTag"
-            app:layout_constraintStart_toEndOf="@+id/ivStudyImage"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
             android:id="@+id/tvTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_high_tag"
+            android:background="@drawable/bg_ffe3e3_rounded"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:text="Status"
-            android:textColor="@color/high_orange"
+            android:text="Completed"
+            android:textColor="#D32F2F"
             android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvPatientInfo1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:text="Patient Name"
-            android:textColor="@color/text_grey"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivStudyImage"
-            app:layout_constraintTop_toBottomOf="@+id/tvStudyTitle1" />
-
-        <TextView
-            android:id="@+id/tvDate1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="2dp"
-            android:text="Date"
-            android:textColor="@color/text_grey"
-            android:textSize="13sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivStudyImage"
-            app:layout_constraintTop_toBottomOf="@+id/tvPatientInfo1" />
-
-        <!-- AI Result Box -->
         <LinearLayout
-            android:id="@+id/llResult"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_f0f7ff_rounded"
             android:orientation="vertical"
-            android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivStudyImage"
-            app:layout_constraintTop_toBottomOf="@+id/tvDate1">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvStudyTitle1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="AI Analysis Result:"
-                android:textColor="@color/brand_blue"
-                android:textSize="11sp"
+                android:text="Study Type"
+                android:textColor="@color/black"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvResultValue"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPatientInfo1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Patient Name"
+                android:textColor="@color/text_grey"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDate1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Normal Findings"
-                android:textColor="@color/black"
+                android:text="Date"
+                android:textColor="@color/text_grey"
+                android:textSize="13sp" />
+
+            <!-- AI Result Box -->
+            <LinearLayout
+                android:id="@+id/llResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_f0f7ff_rounded"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Analysis Result:"
+                    android:textColor="@color/brand_blue"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvResultValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Normal Findings"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvConfidenceValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="95% Confidence"
+                    android:textColor="@color/text_grey"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnViewResults"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
+                android:text="View Details →"
+                android:textColor="#1A62FF"
                 android:textSize="14sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvConfidenceValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="95% Confidence"
-                android:textColor="@color/text_grey"
-                android:textSize="11sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/btnViewResults"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="View Details →"
-            android:textColor="@color/brand_blue"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/llResult"
-            app:layout_constraintTop_toBottomOf="@+id/llResult"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="4dp"/>
-
-        <ImageView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnDeleteStudy1"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:padding="4dp"
-            android:src="@drawable/ic_delete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFF0F0"
+            app:strokeWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/critical_red" />
+            app:layout_constraintEnd_toEndOf="parent">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                android:src="@drawable/ic_delete"
+                app:tint="#FF4B4B" />
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -13,43 +13,30 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        // Delay slightly for smooth UX, then check credentials
+        // Faster transition (500ms) for better UX
         Handler(Looper.getMainLooper()).postDelayed({
             checkAutoLogin()
-        }, 1500)
+        }, 500)
     }
 
     private fun checkAutoLogin() {
         val sessionManager = SessionManager(this)
-        val (email, password) = sessionManager.getCredentials()
-
-        if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
-            // Credentials exist, verify with backend
-            lifecycleScope.launch {
-                try {
-                    val response = ApiClient.apiService.loginUser(LoginRequest(email, password))
-                    if (response.isSuccessful && response.body()?.status == "success") {
-                        // Success: Go to Home
-                        startActivity(Intent(this@SplashActivity, HomeActivity::class.java))
-                    } else {
-                        // Failed: Go to Login
-                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
-                    }
-                } catch (e: Exception) {
-                    // Error: Go to Login
-                    startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
-                } finally {
-                    finish()
-                }
-            }
-        } else {
-            // No credentials, check if onboarding was seen
-            if (sessionManager.hasSeenOnboarding()) {
-                startActivity(Intent(this, HospitalSelectionActivity::class.java))
-            } else {
-                startActivity(Intent(this, MainActivity::class.java))
-            }
+        
+        // Instant navigation if session exists (don't block on network)
+        if (sessionManager.isLoggedIn()) {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
             finish()
+            return
         }
+
+        // Check if onboarding seen
+        if (sessionManager.hasSeenOnboarding()) {
+            startActivity(Intent(this, HospitalSelectionActivity::class.java))
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+        finish()
     }
 }

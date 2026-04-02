@@ -37,7 +37,6 @@ class RegisterActivity : BaseActivity() {
         
         hospitalId?.let {
             etHospitalId.setText(it)
-            etHospitalId.isEnabled = false // Disable it so they can't change it if they came from selection
         }
 
         val tvSubtitle = findViewById<TextView>(R.id.tvSubtitle)

@@ -103,7 +103,7 @@ class ReportsAdapter(
         private fun getFallbackIcon(type: String): Int {
             return when (type.lowercase()) {
                 "ct scan", "ct" -> R.drawable.real_ct_scan
-                "mri", "mri brain" -> R.drawable.real_mri
+                "mri", "mri brain" -> R.drawable.real_mri_scan
                 "x-ray", "xray" -> R.drawable.real_xray_chest
                 else -> R.drawable.ic_pulse_purple
             }

@@ -13,7 +13,7 @@ class AiReportRepository(private val context: Context? = null) {
     private val gson = Gson()
     private val sharedPrefs = context?.getSharedPreferences("ai_reports_prefs", Context.MODE_PRIVATE)
 
-    private fun getLocalReports(userId: Int): MutableList<AiReport> {
+    fun getLocalReports(userId: Int): MutableList<AiReport> {
         val json = sharedPrefs?.getString("local_reports_$userId", null) ?: return mutableListOf()
         val type = object : TypeToken<MutableList<AiReport>>() {}.type
         return gson.fromJson(json, type)
@@ -23,7 +23,7 @@ class AiReportRepository(private val context: Context? = null) {
         sharedPrefs?.edit()?.putString("local_reports_$userId", gson.toJson(reports))?.apply()
     }
 
-    private fun getDeletedIds(userId: Int): MutableSet<Int> {
+    fun getDeletedIds(userId: Int): MutableSet<Int> {
         val set = sharedPrefs?.getStringSet("deleted_report_ids_$userId", emptySet()) ?: emptySet()
         return set.map { it.toInt() }.toMutableSet()
     }

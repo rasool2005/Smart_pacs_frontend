@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class PatientsActivity : AppCompatActivity() {
 
@@ -49,13 +51,37 @@ class PatientsActivity : AppCompatActivity() {
         setupRecyclerView()
         setupSearch()
         
-        // Ensure UI starts clean
-        fullPatientList = emptyList()
-        adapter.updateData(emptyList())
+        // --- INSTANT LOAD FROM CACHE ---
+        loadPatientsFromCache()
         
-        fetchPatients()
         setupClickListeners()
         updateBottomNavSelection()
+    }
+
+    private fun loadPatientsFromCache() {
+        val sessionManager = SessionManager(this)
+        val userId = sessionManager.getUserId()
+        val cache = sessionManager.getCache("patients_cache_$userId")
+        
+        if (!cache.isNullOrEmpty()) {
+            try {
+                val type = object : TypeToken<List<Patient>>() {}.type
+                val cachedList: List<Patient> = Gson().fromJson(cache, type)
+                
+                val deletedIds = getDeletedPatientIds()
+                fullPatientList = cachedList.filter { 
+                    it.patient_id.toString() !in deletedIds 
+                }
+                
+                adapter.updateData(fullPatientList)
+                updateUiWithEmptyState()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        
+        // Always trigger a background refresh
+        fetchPatients()
     }
 
     private fun setupRecyclerView() {
@@ -186,41 +212,37 @@ class PatientsActivity : AppCompatActivity() {
         }
 
         progressBar.visibility = View.VISIBLE
+        
         lifecycleScope.launch {
             try {
-                // Fetch ONLY for this specific doctor account
                 val response = ApiClient.apiService.getPatients(userId)
                 progressBar.visibility = View.GONE
                 
                 if (response.isSuccessful && response.body() != null) {
                     val patientsResponse = response.body()!!
-                    if (patientsResponse.status == "success") {
-                        val newPatients = patientsResponse.patients ?: emptyList()
-                        
-                        // Show all patients returned by the server (server already filters by userId)
-                        val deletedIds = getDeletedPatientIds()
-                        
-                        fullPatientList = newPatients.filter { 
-                            it.patient_id.toString() !in deletedIds 
-                        }
-                        
-                        if (fullPatientList.isEmpty()) {
-                            updateUiWithEmptyState()
-                        } else {
-                            findViewById<View>(R.id.llEmptyState).visibility = View.GONE
-                            recyclerView.visibility = View.VISIBLE
-                            val etSearchPatients = findViewById<EditText>(R.id.etSearchPatients)
-                            filterPatients(etSearchPatients.text.toString())
-                        }
-                    } else {
+                    val newPatients = patientsResponse.patients ?: emptyList()
+                    
+                    // Update cache
+                    sessionManager.saveCache("patients_cache_$userId", Gson().toJson(newPatients))
+                    
+                    val deletedIds = getDeletedPatientIds()
+                    fullPatientList = newPatients.filter { 
+                        it.patient_id.toString() !in deletedIds 
+                    }
+                    
+                    if (fullPatientList.isEmpty()) {
                         updateUiWithEmptyState()
+                    } else {
+                        findViewById<View>(R.id.llEmptyState).visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
+                        adapter.updateData(fullPatientList)
                     }
                 } else {
-                    updateUiWithEmptyState()
+                    if (fullPatientList.isEmpty()) updateUiWithEmptyState()
                 }
             } catch (e: Exception) {
                 progressBar.visibility = View.GONE
-                updateUiWithEmptyState()
+                if (fullPatientList.isEmpty()) updateUiWithEmptyState()
             }
         }
     }

@@ -140,6 +140,7 @@ class SessionManager(private val context: Context) {
         context.getSharedPreferences("doctor_isolation_prefs", Context.MODE_PRIVATE).edit().clear().apply()
         context.getSharedPreferences("appointment_prefs", Context.MODE_PRIVATE).edit().clear().apply()
         context.getSharedPreferences("study_prefs", Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences("api_cache_prefs", Context.MODE_PRIVATE).edit().clear().apply()
         
         // Clear any other app-specific caches if they exist
         try {
@@ -147,5 +148,16 @@ class SessionManager(private val context: Context) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    // --- CACHE LAYER ---
+    fun saveCache(key: String, json: String) {
+        val cachePrefs = context.getSharedPreferences("api_cache_prefs", Context.MODE_PRIVATE)
+        cachePrefs.edit().putString(key, json).apply()
+    }
+
+    fun getCache(key: String): String? {
+        val cachePrefs = context.getSharedPreferences("api_cache_prefs", Context.MODE_PRIVATE)
+        return cachePrefs.getString(key, null)
     }
 }

@@ -157,7 +157,7 @@ class PatientDetailsActivity : AppCompatActivity() {
                 } else {
                     val imageResId = when (selectedReport.examination_type?.lowercase()) {
                         "ct scan", "ct" -> R.drawable.real_ct_scan
-                        "mri", "mri brain" -> R.drawable.real_mri
+                        "mri", "mri brain" -> R.drawable.real_mri_scan
                         "x-ray", "xray", "x-ray chest" -> R.drawable.real_xray_chest
                         else -> R.drawable.img_mock_ct
                     }

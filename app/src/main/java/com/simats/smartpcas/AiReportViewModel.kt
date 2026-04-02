@@ -49,7 +49,21 @@ class AiReportViewModel(application: Application) : AndroidViewModel(application
 
     fun getAiReports(userId: Int) {
         viewModelScope.launch {
+            // 1. Emit loading state
             _reportsListState.value = Resource.Loading()
+            
+            // 2. Immediately emit local reports first for instant UI response
+            val localReports = repository.getLocalReports(userId)
+            val deletedIds = repository.getDeletedIds(userId)
+            val initialList = localReports
+                .filter { it.user_id == userId && !deletedIds.contains(it.id) }
+                .sortedByDescending { it.created_at }
+            
+            if (initialList.isNotEmpty()) {
+                _reportsListState.value = Resource.Success(initialList)
+            }
+            
+            // 3. Then fetch refreshed data from combined sources
             val result = repository.getReports(userId)
             _reportsListState.value = result
         }

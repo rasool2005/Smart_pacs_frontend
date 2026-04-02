@@ -62,25 +62,8 @@ class ReportsListActivity : AppCompatActivity() {
     }
 
     private fun fetchPatientNamesAndReports(userId: Int) {
-        lifecycleScope.launch {
-            progressBar.visibility = View.VISIBLE
-            try {
-                // Pass the userId to getPatients as required by ApiService
-                val response = ApiClient.apiService.getPatients(userId)
-                if (response.isSuccessful && response.body() != null) {
-                    val patients = response.body()?.patients ?: emptyList()
-                    val names = patients.map { it.patient_name }.filter { it.isNotBlank() }
-                    patientNamesList = names.ifEmpty { listOf("Unknown Patient") }
-                } else {
-                    patientNamesList = listOf("Unknown Patient")
-                }
-            } catch (e: Exception) {
-                patientNamesList = listOf("Unknown Patient")
-            }
-            
-            // Proceed to fetch reports after getting names
-            viewModel.getAiReports(userId)
-        }
+        // Start fetching reports immediately without blocking on patients list
+        viewModel.getAiReports(userId)
     }
 
     private fun setupRecyclerView() {
@@ -121,49 +104,63 @@ class ReportsListActivity : AppCompatActivity() {
             viewModel.reportsListState.collect { resource ->
                 when (resource) {
                     is Resource.Loading -> {
-                        progressBar.visibility = View.VISIBLE
-                        rvReports.visibility = View.GONE
-                        llEmptyState.visibility = View.GONE
+                        // Only show progress bar if we have ZERO reports currently
+                        if (adapter.itemCount == 0) {
+                            progressBar.visibility = View.VISIBLE
+                        }
                     }
                     is Resource.Success -> {
                         progressBar.visibility = View.GONE
                         val reports = resource.data ?: emptyList()
                         val targetPatientName = intent.getStringExtra("PATIENT_NAME")
                         
-                        val filteredReports = if (!targetPatientName.isNullOrEmpty()) {
+                        // Extract and filter
+                        val baseFiltered = if (!targetPatientName.isNullOrEmpty()) {
                             reports.filter { report ->
                                 val imp = report.impression ?: ""
                                 val pName = if (imp.startsWith("[Patient: ")) {
                                     imp.substringAfter("[Patient: ").substringBefore("]")
-                                } else {
-                                    "Unknown Patient"
-                                }
+                                } else "Unknown Patient"
                                 
                                 val normalizedPName = if (pName == "null" || pName.isBlank()) "Unknown Patient" else pName
                                 normalizedPName.equals(targetPatientName, ignoreCase = true)
                             }
                         } else {
-                            // Deduplicate reports with same type, finding, and date to avoid phantom duplicates
-                            reports.distinctBy { 
-                                "${it.examination_type}_${it.finding_name}_${it.created_at?.substringBefore("T")}_${it.impression}"
-                            }
+                            reports
                         }
                         
-                        if (filteredReports.isEmpty()) {
+                        // Final reports
+                        val finalReports = baseFiltered
+
+                        if (finalReports.isEmpty()) {
                             llEmptyState.visibility = View.VISIBLE
                             rvReports.visibility = View.GONE
+                            tvEmptyMessage.text = if (!targetPatientName.isNullOrEmpty()) 
+                                "No reports found for $targetPatientName" else "No reports available."
                         } else {
                             llEmptyState.visibility = View.GONE
                             rvReports.visibility = View.VISIBLE
-                            
-                            adapter.updateData(filteredReports, patientNamesList)
+                            adapter.updateData(finalReports, patientNamesList)
                         }
                     }
                     is Resource.Error -> {
                         progressBar.visibility = View.GONE
-                        llEmptyState.visibility = View.VISIBLE
-                        tvEmptyMessage.text = resource.message ?: "Failed to load reports."
+                        if (adapter.itemCount == 0) {
+                            llEmptyState.visibility = View.VISIBLE
+                            tvEmptyMessage.text = resource.message ?: "Failed to load reports."
+                        }
                     }
+                }
+            }
+        }
+        
+        // Safety timeout: Hide progress bar after 10 seconds regardless of state
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(10000)
+            if (progressBar.visibility == View.VISIBLE) {
+                progressBar.visibility = View.GONE
+                if (adapter.itemCount == 0) {
+                    llEmptyState.visibility = View.VISIBLE
                 }
             }
         }
@@ -190,4 +187,5 @@ class ReportsListActivity : AppCompatActivity() {
             }
         }
     }
+
 }

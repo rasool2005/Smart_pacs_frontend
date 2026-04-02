@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -29,6 +30,8 @@ class AddPatientActivity : AppCompatActivity() {
     private lateinit var etBloodType: EditText
     private lateinit var etAllergies: EditText
     private lateinit var ccp: CountryCodePicker
+    private lateinit var progressBar: ProgressBar
+    private lateinit var btnSave: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +69,8 @@ class AddPatientActivity : AppCompatActivity() {
         etBloodType = findViewById(R.id.etBloodType)
         etAllergies = findViewById(R.id.etAllergies)
         ccp = findViewById(R.id.ccp)
+        progressBar = findViewById(R.id.progressBar)
+        btnSave = findViewById(R.id.btnSave)
         
         // Attach the EditText to the CountryCodePicker for automatic validation
         ccp.registerCarrierNumberEditText(etPhone)
@@ -81,10 +86,6 @@ class AddPatientActivity : AppCompatActivity() {
 
         if (patientName.isEmpty()) {
             Toast.makeText(this, "Please enter patient name", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (patientName.length < 3) {
-            Toast.makeText(this, "Patient name must be at least 3 characters", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -117,8 +118,8 @@ class AddPatientActivity : AppCompatActivity() {
             maxAllowed.set(2026, Calendar.DECEMBER, 31, 23, 59, 59)
 
             if (selectedDate != null) {
-                if (!selectedDate.before(today.time)) {
-                    Toast.makeText(this, "Date of Birth cannot be today or a future date", Toast.LENGTH_SHORT).show()
+                if (selectedDate.after(today.time)) {
+                    Toast.makeText(this, "Date of Birth cannot be in the future", Toast.LENGTH_SHORT).show()
                     return
                 }
                 if (selectedDate.after(maxAllowed.time)) {
@@ -176,6 +177,9 @@ class AddPatientActivity : AppCompatActivity() {
             return
         }
 
+        progressBar.visibility = View.VISIBLE
+        btnSave.isEnabled = false
+        
         lifecycleScope.launch {
             try {
                 val response = ApiClient.apiService.addPatient(
@@ -184,9 +188,9 @@ class AddPatientActivity : AppCompatActivity() {
                     dob = dob,
                     phone_number = fullPhoneNumber,
                     address = address,
-                    email = if (email.isEmpty()) "N/A" else email,
-                    blood_type = if (bloodType.isEmpty()) "N/A" else bloodType.uppercase(),
-                    allergies = if (allergies.isEmpty()) "None" else allergies
+                    email = email,
+                    blood_type = bloodType.uppercase(),
+                    allergies = allergies
                 )
 
                 if (response.isSuccessful) {
@@ -227,6 +231,9 @@ class AddPatientActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this@AddPatientActivity, "Network Error: ${e.message}", Toast.LENGTH_LONG).show()
                 e.printStackTrace()
+            } finally {
+                progressBar.visibility = View.GONE
+                btnSave.isEnabled = true
             }
         }
     }

@@ -109,60 +109,52 @@ class AiScannerActivity : BaseActivity() {
             return
         }
 
-        // 1. Create RequestBody for file
-        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-
-        // 2. Create MultipartBody.Part (key is 'file' to match backend)
-        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
-        // 3. Create RequestBody for scan_type
-        val scanTypeBody = selectedScanType.toRequestBody("text/plain".toMediaTypeOrNull())
-
-        Toast.makeText(this, "Processing $selectedScanType...", Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch {
-            try {
-                val response = ApiClient.apiService.predictImage(body, scanTypeBody)
-
-                if (response.isSuccessful && response.body() != null) {
-                    val prediction = response.body()!!
-                    val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                    intent.putExtra("image_uri", internalUri.toString())
-                    intent.putExtra("prediction_results", prediction)
-                    intent.putExtra("scan_type", selectedScanType)
-                    intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
-                    startActivity(intent)
-                } else {
-                    // Pass internal URI and scan type to AiResultsActivity even on failure
-                    val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                    intent.putExtra("image_uri", internalUri.toString())
-                    intent.putExtra("scan_type", selectedScanType)
-                    intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
-                    startActivity(intent)
-                }
-            } catch (e: Exception) {
-                // Connection error fallback
-                val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
-                intent.putExtra("image_uri", internalUri.toString())
-                intent.putExtra("scan_type", selectedScanType)
-                intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
-                startActivity(intent)
-            }
-        }
+        // We now move directly to the results page and do the analysis there.
+        // This makes the transition feel instant while the 'Loading' happens on the results screen.
+        val intent = Intent(this@AiScannerActivity, AiResultsActivity::class.java)
+        intent.putExtra("image_uri", internalUri.toString())
+        intent.putExtra("scan_type", selectedScanType)
+        intent.putExtra("PATIENT_NAME", this@AiScannerActivity.intent.getStringExtra("PATIENT_NAME"))
+        startActivity(intent)
     }
 
     private fun getFileFromUri(uri: Uri): File? {
         return try {
-            val inputStream = contentResolver.openInputStream(uri)
-            // Use a unique name to prevent overwriting images in history
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val originalBitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            
+            if (originalBitmap == null) return null
+
+            // 1. Calculate new dimensions (Max 800px to keep it fast but clear)
+            val maxDimension = 800
+            val width = originalBitmap.width
+            val height = originalBitmap.height
+            val scale = if (width > height) {
+                maxDimension.toFloat() / width
+            } else {
+                maxDimension.toFloat() / height
+            }
+            
+            val finalWidth = (width * scale).toInt()
+            val finalHeight = (height * scale).toInt()
+            
+            // 2. Resize
+            val resizedBitmap = android.graphics.Bitmap.createScaledBitmap(originalBitmap, finalWidth, finalHeight, true)
+            
+            // 3. Compress and save
             val fileName = "scan_${UUID.randomUUID()}.jpg"
-            val file = File(filesDir, fileName) // Use filesDir for better persistence than cacheDir
+            val file = File(filesDir, fileName)
             val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
+            resizedBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, outputStream)
             outputStream.close()
+            
+            originalBitmap.recycle()
+            if (resizedBitmap != originalBitmap) resizedBitmap.recycle()
+            
             file
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -176,6 +168,7 @@ class AiScannerActivity : BaseActivity() {
     private fun isMedicalImage(file: File): Boolean {
         try {
             val options = android.graphics.BitmapFactory.Options()
+            options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
             options.inSampleSize = 4 // Scale down to process faster
             val bitmap = android.graphics.BitmapFactory.decodeFile(file.absolutePath, options) ?: return true
             
@@ -183,8 +176,32 @@ class AiScannerActivity : BaseActivity() {
             val height = bitmap.height
             if (width * height == 0) return true
             
+            // --- 1. FACE DETECTION REJECTION ---
+            try {
+                // FaceDetector requires even width
+                val fdBitmap = if (bitmap.width % 2 != 0) {
+                    android.graphics.Bitmap.createBitmap(bitmap, 0, 0, bitmap.width - 1, bitmap.height)
+                } else bitmap
+                
+                val maxFaces = 1
+                val faces = arrayOfNulls<android.media.FaceDetector.Face>(maxFaces)
+                val faceDetector = android.media.FaceDetector(fdBitmap.width, fdBitmap.height, maxFaces)
+                val faceCount = faceDetector.findFaces(fdBitmap, faces)
+                if (fdBitmap != bitmap) fdBitmap.recycle()
+                
+                // If a clear human face is detected, it's a standard photo, not a medical scan
+                if (faceCount > 0) {
+                    bitmap.recycle()
+                    return false
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
             var coloredPixels = 0
             var darkPixels = 0
+            var midPixels = 0
+            var brightPixels = 0
             var whitePixels = 0
             var checkedPixels = 0
             
@@ -203,9 +220,14 @@ class AiScannerActivity : BaseActivity() {
                     if (variance > 25) {
                         coloredPixels++
                     }
-                    if (maxColor < 40) {
-                        darkPixels++
+                    
+                    // Contrast spectrum bucketing
+                    when {
+                        maxColor < 50 -> darkPixels++
+                        maxColor > 200 -> brightPixels++
+                        else -> midPixels++
                     }
+
                     if (minColor > 240) {
                         whitePixels++
                     }
@@ -220,16 +242,22 @@ class AiScannerActivity : BaseActivity() {
             
             val coloredPercentage = (coloredPixels.toFloat() / checkedPixels) * 100f
             val darkPercentage = (darkPixels.toFloat() / checkedPixels) * 100f
+            val midPercentage = (midPixels.toFloat() / checkedPixels) * 100f
             val whitePercentage = (whitePixels.toFloat() / checkedPixels) * 100f
             
-            // 1. Reject colorful photos (more than 5% of pixels have a distinct hue)
+            // 2. Reject colorful photos (more than 5% of pixels have a distinct hue)
             if (coloredPercentage > 5.0f) return false
             
-            // 2. Reject screenshots/documents (more than 60% of the image is pure bright white)
+            // 3. Reject screenshots/documents (more than 60% of the image is pure bright white)
             if (whitePercentage > 60.0f) return false
             
-            // 3. Reject images with no dark background (X-Rays/CTs almost always have some dark background)
-            if (darkPercentage < 5.0f) return false
+            // 4. Reject natural B&W photos (Movie Stills, Faces). 
+            // Medical images are highly bimodal (black background vs white structural bones/tissue).
+            // Natural photos have a massive cluster of complex mid-tones (usually >70%).
+            if (midPercentage > 65.0f) return false
+
+            // 5. Reject images with almost no dark background void
+            if (darkPercentage < 10.0f) return false
             
             return true
         } catch (e: Exception) {

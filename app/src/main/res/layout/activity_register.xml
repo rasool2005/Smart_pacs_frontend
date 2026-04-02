@@ -177,7 +177,7 @@
                 android:id="@+id/etHospitalId"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="H12345"
+                android:hint="e.g. H5"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 

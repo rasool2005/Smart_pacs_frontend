@@ -17,27 +17,32 @@ import kotlinx.coroutines.launch
 class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
+        try {
+            enableEdgeToEdge()
+            setContentView(R.layout.activity_home)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, 0, systemBars.right, 0)
-            insets
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, 0, systemBars.right, 0)
+                insets
+            }
+
+            val sessionManager = SessionManager(this)
+            val userName = sessionManager.getUserName()
+            if (!userName.isNullOrEmpty()) {
+                findViewById<TextView>(R.id.tvAppName)?.text = userName
+            }
+
+            // Load profile image if available (using initials icon logic from original UI)
+            loadProfileImage()
+
+            checkFreshStatus()
+            setupClickListeners()
+            updateBottomNavSelection()
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Home Error: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            e.printStackTrace()
         }
-
-        val sessionManager = SessionManager(this)
-        val userName = sessionManager.getUserName()
-        if (!userName.isNullOrEmpty()) {
-            findViewById<TextView>(R.id.tvAppName).text = userName
-        }
-
-        // Load profile image if available (using initials icon logic from original UI)
-        loadProfileImage()
-
-        checkFreshStatus()
-        setupClickListeners()
-        updateBottomNavSelection()
     }
 
     private fun checkFreshStatus() {

@@ -279,35 +279,32 @@
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmailReport"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:text="Email AI Report"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="#1A62FF"
+            app:cornerRadius="12dp"
+            app:elevation="2dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEmailReport"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="Email Report"
-                android:textAllCaps="false"
-                android:textColor="@color/brand_blue"
-                app:cornerRadius="12dp"
-                app:strokeColor="@color/brand_blue" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Cancel"
+                android:text="Back to Reports"
                 android:textAllCaps="false"
-                android:textColor="#EF4444"
-                app:strokeColor="#EF4444"
+                android:textColor="#73777F"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="#E0E0E0"
                 app:cornerRadius="12dp" />
 
         </LinearLayout>

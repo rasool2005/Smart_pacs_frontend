@@ -41,9 +41,8 @@ class LoginActivity : BaseActivity() {
         }
 
         val tvSubtitle = findViewById<android.widget.TextView>(R.id.tvSubtitle)
-        selectedHospitalName?.let {
-            tvSubtitle.text = "Login for $it"
-        }
+        // Reverted to original static text
+        tvSubtitle.text = "Login to continue your diagnosis"
 
         val etEmail = checkNotNull(findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etEmail)) {
             "etEmail is missing or has incorrect type in activity_login.xml"
@@ -60,26 +59,17 @@ class LoginActivity : BaseActivity() {
             val password = etPassword.text?.toString()?.trim() ?: ""
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                val hasUppercase = password.any { it.isUpperCase() }
-                val hasLowercase = password.any { it.isLowerCase() }
-                val hasDigit = password.any { it.isDigit() }
-                val hasSpecialChar = password.any { !it.isLetterOrDigit() }
-
-                if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
-                    Toast.makeText(this@LoginActivity, "Invalid password. Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.", Toast.LENGTH_LONG).show()
-                } else {
-                    // Force logout/clear of previous session data before new login
-                    sessionManager.logout()
-                    
-                    // Restore selected hospital after logout clears it
-                    selectedHospitalId?.let { id ->
-                        selectedHospitalName?.let { name ->
-                            sessionManager.saveSelectedHospital(id, name)
-                        }
+                // Force logout/clear of previous session data before new login
+                sessionManager.logout()
+                
+                // Restore selected hospital after logout clears it
+                selectedHospitalId?.let { id ->
+                    selectedHospitalName?.let { name ->
+                        sessionManager.saveSelectedHospital(id, name)
                     }
-                    
-                    loginUser(email, password)
                 }
+                
+                loginUser(email, password)
             } else {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
             }
@@ -111,12 +101,6 @@ class LoginActivity : BaseActivity() {
                     val loginResponse = response.body()
                     if (loginResponse?.status == "success" && loginResponse.user != null) {
                         
-                        // HOSPITAL VALIDATION
-                        if (selectedHospitalId != null && loginResponse.user.hospital_id != selectedHospitalId) {
-                            Toast.makeText(this@LoginActivity, "This account is not registered for ${selectedHospitalName ?: "this hospital"}. Please select the correct hospital.", Toast.LENGTH_LONG).show()
-                            return@launch
-                        }
-
                         sessionManager.saveLoginState(true)
                         sessionManager.saveCredentials(email, password)
                         
@@ -135,9 +119,41 @@ class LoginActivity : BaseActivity() {
                         Toast.makeText(this@LoginActivity, loginResponse?.message ?: "Login Failed", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // Show actual error code for debugging
-                    val errorBody = response.errorBody()?.string()
-                    Toast.makeText(this@LoginActivity, "Server Error ${response.code()}: $errorBody", Toast.LENGTH_LONG).show()
+                    try {
+                        val errorBody = response.errorBody()?.string()
+                        if (errorBody != null) {
+                            val jsonObject = org.json.JSONObject(errorBody)
+                            var errorMessage = "Login Failed"
+                            
+                            if (jsonObject.has("message")) {
+                                val messageObj = jsonObject.opt("message")
+                                if (messageObj is org.json.JSONObject) {
+                                    if (messageObj.has("non_field_errors")) {
+                                        val errors = messageObj.getJSONArray("non_field_errors")
+                                        if (errors.length() > 0) {
+                                            errorMessage = errors.getString(0)
+                                        }
+                                    } else {
+                                        val keys = messageObj.keys()
+                                        if (keys.hasNext()) {
+                                            val key = keys.next()
+                                            val errors = messageObj.optJSONArray(key)
+                                            if (errors != null && errors.length() > 0) {
+                                                errorMessage = errors.getString(0)
+                                            }
+                                        }
+                                    }
+                                } else if (messageObj is String) {
+                                    errorMessage = messageObj
+                                }
+                            }
+                            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this@LoginActivity, "Login Failed", Toast.LENGTH_LONG).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@LoginActivity, "Server Error ${response.code()}", Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@LoginActivity, "Connection Error: ${e.message}", Toast.LENGTH_LONG).show()

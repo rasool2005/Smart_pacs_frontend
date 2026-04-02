@@ -42,7 +42,7 @@ class PacsAdapter(
                 holder.ivStudyImage.setImageResource(R.drawable.img_mock_ct)
             }
             "MRI" -> {
-                holder.ivStudyImage.setImageResource(R.drawable.real_mri) // Replaced icon with real scan
+                holder.ivStudyImage.setImageResource(R.drawable.real_mri_scan) // Replaced icon with real scan
             }
         }
 
